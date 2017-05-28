@@ -1,0 +1,1 @@
+This is a simple project which allow you to draw a complex logical expression using the boolean algebra. Right now you AND represent the *, OR represent the +, NOT represent the -. In the near future it will draw more beautiful draws, with as little as possible crossroads. So stay tuned. :-)
