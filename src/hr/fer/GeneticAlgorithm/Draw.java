@@ -14,13 +14,9 @@ public class Draw
 	private List<Symbol>symbols=new ArrayList<>();
 	private List<SShape>shapes=new ArrayList<>();
 	private Map<String,Symbol>ulazi=new java.util.HashMap<>();
-	int id=0;
-	private double minimumNodeDistanceSum;
-	private double minimumNodeDistance;
-	private double edgeLengthDeviation;
-	private double totalDistance;
-	private int edgeCrossing;
-	public double numOfNodes=0;
+	
+	private List<Integer>bitmask=new ArrayList<>();
+	private List<Integer>bitmask2=new ArrayList<>();
 	
 	private int height=500;
 	private int width=1000;
@@ -29,18 +25,29 @@ public class Draw
 	private static Random rand=new Random();
 	public String postfix;
 	
+	private double minimumNodeDistanceSum;
+	private double minimumNodeDistance;
+	private double edgeLengthDeviation;
+	private double totalDistance;
+	private int edgeCrossing;
+	
 	public Draw(int height,int width)
 	{
 		this.height=height;
 		this.width=width;
 	}
-	public Draw(String postfix,int height,int width)
+	public Draw(String postfix,int height,int width,List<Integer>bitmask,List<Integer>bitmask2)
 	{
 		this.postfix=postfix;
 		this.height=height;
 		this.width=width;
 		
+		this.bitmask=new ArrayList<>(bitmask);
+		this.bitmask2=new ArrayList<>(bitmask2);
+		
 		Stack<Symbol>S=new Stack<>();
+		
+		int id=0;
 		for(int i=0,len=postfix.length();i<len;++i)
 		{
 			if(postfix.charAt(i)=='-' || postfix.charAt(i)=='+' || postfix.charAt(i)=='*')
@@ -50,7 +57,7 @@ public class Draw
 					Symbol P=S.peek();
 					S.pop();
 					
-					//Adding a new Symbol to the list, 1 operants
+					//Adding a new Symbol to the list, 1 operands
 					Symbol P2=new Symbol(Symbols.NOT,id++);
 					P2.addParent(P);
 					S.push(P2);
@@ -64,22 +71,14 @@ public class Draw
 					S.pop();
 					Symbol P2;
 					
-					//Adding a new Symbol to the list, 2 operants
+					//Adding a new Symbol to the list, 2 operands
 					if(postfix.charAt(i)=='+')
 						P2=new Symbol(Symbols.OR,id++);
 					else
 						P2=new Symbol(Symbols.AND,id++);
-					int x=rand.nextInt(15647);
-					if(x%2==0)
-					{
-						P2.addParent(P);
-						P2.addParent(P1);
-					}
-					else
-					{
-						P2.addParent(P1);
-						P2.addParent(P);
-					}
+					
+					P2.addParent(P);
+					P2.addParent(P1);
 					
 					S.push(P2);
 					symbols.add(P2);
@@ -101,7 +100,7 @@ public class Draw
 				}
 				
 			}
-			numOfNodes=symbols.size();
+			
 		}
 		Symbol P=S.peek();
 		S.pop();
@@ -111,8 +110,8 @@ public class Draw
 		symbols.add(out);
 		
 		
+		TopoSort();
 		generate();
-		//TopologicalSort();
 		setEvaluationVariables();
 	}
 	
@@ -129,29 +128,42 @@ public class Draw
 		
 		return D;
 	}
-	
-	public void generate()
+	/**
+	 * TopoSort gives the depth parameter to the symbols, or the relative position in the draw. If the symbol has a depth two, it can't be on the
+	 * right side of the symbol with a depth three.
+	 */
+	public void TopoSort()
 	{
-		addCentralDots();
-		rotatePins();
-		
+
 		symbols.sort((t1,t2)->Integer.compare(t1.getDepth(),t2.getDepth()));
-		
 		for(Symbol simbol: symbols)
 		{
 			if(simbol.getType()==Symbols.INPUT)
 				simbol.setDepth(1,true);
 			for(Symbol parent: simbol.getParents())
 			{
-				generateWires(parent, simbol);
+				//generateWires(parent, simbol);
 				simbol.setDepth(parent.getDepth()+1);
 			}
 		}
+		
+		symbols.sort((t1,t2)->Integer.compare(t1.getDepth(),t2.getDepth()));
+		
+	}
+	
+	public void generate()
+	{
+		addCentralDots();
+		
+		for(Symbol S: symbols)
+			for(Symbol parent: S.getParents())
+				generateWires(parent, S);
+		
 		for(Symbol S:temp_list)
 		{
 			symbols.add(S);
 		}
-		//rotatePinsInSomeSymbols();
+		rotatePins();
 	}
 	/*
 	 * Corrects the position of the Symbols.
@@ -172,50 +184,56 @@ public class Draw
 	{
 		this.wires=new ArrayList<Wire>(wires);
 	}		
-	private void rotatePins()
+	/**
+	 * This doesn't work I don't know WHY ?????
+	 */
+	public void rotatePins()
 	{
-		for(int i=0,len=symbols.size();i<len;i=(i+1))
+		for(Symbol S: symbols)
 		{
-			if(symbols.get(i).isSymbolOrAndType())
+			if(S.isSymbolOrAndType())
 			{
-				Symbol S1=symbols.get(i).getParent(1);
-				Symbol S2=symbols.get(i).getParent(2);
+				Wire w1=S.getEnteringWire(0);
+				Wire w2=S.getEnteringWire(1);
 				
-				if(S1.getCenterDot().getY()>S2.getCenterDot().getY())
+				if(w1.getStart().getY()>w2.getStart().getY())
 				{
-					List<Symbol>L=new ArrayList<>();
-					L.add(S2);
-					L.add(S1);
-					symbols.get(i).setParents(L);
+					//System.out.println(w1.getStart().getY()+" "+w2.getStart().getY());
+					w1.setInputPin(2);
+					w2.setInputPin(1);
 				}
 			}
 		}
 		return;
 	}
+	
 	private void addCentralDots()
 	{
+		int pos=0;
 		for(Symbol S: symbols)
 		{
-			Dot center=new Dot(Dot.getRandom(200, 900),
-					           Dot.getRandom(125, 595));
+			Dot center=new Dot(bitmask2.get(pos)*60+200,
+					           bitmask.get(pos)*30+100);
 			
 			if(S.getType()==Symbols.INPUT)center.setX(100);  
 			if(S.getType()==Symbols.OUTPUT)center.setX(1050);
-			
+			if(S.isSymbolOutInType())center.setY(Dot.getRandom(100, 400));
 			S.setPosition(center);
 			
 			if(S.isSymbolOutInType()) //The input and output dots can't be moved in the x direction, only in the y direction.
 				S.getCenterDot().setCanYouMoveIt(false);
 			
-			if(S.getType()!=Symbols.GRID)
-			{
-				addInVisibleWireAroundTheSymbol(S);
-			}
+			addInVisibleWireAroundTheSymbol(S);
+			
+			if(!S.isSymbolOutInType())++pos;
 		}
 		
 		return;
 	}
-	
+	/**
+	 * Adds invisible wires around the given symbol so that we can calculate if the given symbol overlap.
+	 * @param 	
+	 */
 	private void addInVisibleWireAroundTheSymbol(Symbol S) 
 	{
 		
@@ -224,11 +242,6 @@ public class Draw
 		Wire w3=new Wire(S.gridDots[2],S.gridDots[3],1,false);
 		Wire w4=new Wire(S.gridDots[3],S.gridDots[0],1,false);
 		
-		/*Wire w1=new Wire(d1,d2,false);
-		Wire w2=new Wire(d2,d3,false);
-		Wire w3=new Wire(d3,d4,false);
-		Wire w4=new Wire(d4,d1,false);*/
-		
 		wires.add(w1);wires.add(w2);wires.add(w3);wires.add(w4);
 		return;
 	}
@@ -236,21 +249,7 @@ public class Draw
 	{
 		checkThePosition(p2, p);
 		int pin=p.getNextEmptyPin();
-		/*
 		
-		Dot d1=Dot.getRandomDot(p2.getOutputDot(), p.getInput(pin));
-		
-		
-		Symbol S=new Symbol(Symbols.EDGE,p2.getId());
-		S.addParent(p2);
-		S.setPosition(d1);
-		
-		Wire W=new Wire(p2,S,1);
-		S.AddEnteringWire(W);
-		temp_list.add(S);
-		
-		wires.add(W);
-		*/
 		Dot temp=p2.getLocation();
 		Symbol temp2=p2;
 		for(int i=0,r1=rand.nextInt(1);i<0;++i)
@@ -267,22 +266,15 @@ public class Draw
 			wires.add(W2);
 			S1.AddEnteringWire(W2);
 			temp_list.add(S1);
-			++numOfNodes;
+			
 			temp=d2;
 			temp2=S1;
 		}
-		//System.out.println(temp2.getLocation()+"+(kraj)+"+ p.getInput(pin));
+		
 		Wire W1=new Wire(temp2,p,p.getNextEmptyPin());
-		
-		
-		
 		wires.add(W1);	
 	
 		p.AddEnteringWire(W1);
-		
-		
-		
-		
 	}
 	public List<Wire>getWires()
 	{
