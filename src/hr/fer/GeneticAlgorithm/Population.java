@@ -20,14 +20,14 @@ public class Population
 	 */
 	public double getBestPerform()
 	{
-		double ans=1;
+		double ans=-115651561651.56;
 		for(Draw D: draws)
 			ans=Math.max(ans,D.getEvaluationFunction());
 		
 		return ans;
 	}
 	/**
-	 * Sets the new generation, which was received in the call of the function.
+	 * Sets the new generation, but first we kill the previous. 
 	 * @param List<Draw> draws
 	 * @return void
 	 */
@@ -49,26 +49,14 @@ public class Population
 		int size=draws.size();
 		evaluate();
 		List<Draw>kids=new ArrayList<>();
-		for(int i=size-1;i>=size/2;--i)
-		{
-			Draw D=draws.get(i);
-			kids.add(D.duplicate());
-			muttation(D);
-			kids.add(D);
-		}
-		killTheGeneration();
-		String postfix="";
-		for(Draw D : kids)
-		{
-			addNewDraw(D);
-			postfix=D.postfix;
-		}
-		for(int i=0;i<4;++i)
-		{
-			//addNewDraw(new Draw(postfix,550,1100));
-		}
+		
+		
 	}
-	private void killTheGeneration()
+	/**
+	 * Kills the entire generation.
+	 * @return void
+	 */
+	public void killTheGeneration()
 	{
 		draws.clear();
 		return;
@@ -82,8 +70,10 @@ public class Population
 	{
 		if(draws.size()==0)
 			return null;
+		
 		Draw ans=draws.get(0);
 		double brAns=ans.getEvaluationFunction();
+		
 		for(Draw D : draws)
 		{
 			double temp=D.getEvaluationFunction();
@@ -105,25 +95,16 @@ public class Population
 		Random rand=new Random();
 		int pos=rand.nextInt(35);
 		
-		if(pos<=18)GeneticOperations.SingleMutate(D, 18);
-		else if(pos>18 && pos<=18+5)GeneticOperations.EdgeMutation2(D);
-		//else 
 		
-		D.setEvaluationVariables();
-		
-		/*else
-		{
-			GeneticOperations.ChangeInputPins(D);
-		}*/
 		
 	}
 	/**
-	 * Sorts the draws in the asc order using the evaluation function.
+	 * Sorts the draws in the dsc order using the evaluation function.
 	 * @return void
 	 */
 	public void evaluate()
 	{
-		draws.sort(new Comparator<Draw>() {
+		draws.sort(Collections.reverseOrder(new Comparator<Draw>() {
 
 			@Override
 			public int compare(Draw o1, Draw o2) {
@@ -135,13 +116,13 @@ public class Population
 				}
 				else return Integer.compare(o1.getNumWiresCrossing(), o2.getNumWiresCrossing());
 			}
-		});
+		}));
 		
 	}
 	
 	/**
 	 * Adds new draw to the population.
-	 * @param Draw d
+	 * @param Draw 
 	 * @return void
 	 */
 	public void addNewDraw(Draw d)
@@ -159,8 +140,9 @@ public class Population
 		return null;
 	}
 	/**
-	 * Selects some draw from the whole population. 
+	 * Returns some draw from the whole population. 
 	 * This is actually, a function to choose a parent.
+	 * @return Draw
 	 */
 	public Draw selectOneDraw()
 	{

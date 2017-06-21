@@ -1,4 +1,5 @@
 package hr.fer.GeneticAlgorithm;
+import hr.fer.Parsing.*;
 import hr.fer.DrawObjects.*;
 import hr.fer.Geometric.Geometric;
 
@@ -10,198 +11,38 @@ public class GeneticOperations
 {
 	private static Random rand=new Random();
 	
+	public static void moveItLeftOrRight(Draw D)
+	{
+		
+		int br=rand.nextInt(Parser.getNumOfNodes(D.postfix));
+		int i=0;
+		for(Symbol S: D.getSymbols())
+		{
+			if(S.isSymbolOrAndType() || S.getType()==Symbols.NOT)
+			{
+				if(i==br)
+				{
+					if(rand.nextInt(12)%2==0)
+					{
+						if(S.child.getDepth()-S.getDepth()>1)
+							S.setDepth(S.getDepth()+1, true);
+					}
+					else 
+					{
+						//lijevo
+						boolean k=true;
+						for(Symbol parent : S.getParents())
+						{
+							if(S.getDepth()-1==parent.getDepth())k=false;
+						}
+						if(k)S.setDepth(S.getDepth()-1, true);
+					}
+					break;
+				}
+				++i;
+			}
+		}
+	}
 	
-	/**
-	 * Function returns true if the square of a size squareSize around Dot position is empty.
-	 * @Draw D
-	 * @param Dot position
-	 * @param int squareSize
-	 * @return boolean
-	 */
-	public static boolean isTheSquareClear(Draw D,Dot position,int squareSize)
-	{
-		List<Symbol>symbols=D.getSymbols();
-		for(Symbol S: symbols)
-		{
-			Dot pos=S.getCenterDot();
-			if(  Math.abs(pos.getX()-position.getX())<=squareSize/2 &&
-				 Math.abs(pos.getY()-position.getY())<=squareSize/2
-					)
-				return false;
-		}
-		return true;
-	}
-	/**
-	 * Function returns the list of the symbols that are in the specific square.
-	 * @Draw D
-	 * @param Dot position
-	 * @param int squareSize
-	 * @return List<Symbol>
-	 */
-	public static List<Symbol> symbolsInTheSquare(Draw D,Dot position,int squareSize)
-	{
-		List<Symbol>symbols=D.getSymbols();
-		List<Symbol>resSymbols=new ArrayList<>();
-		for(Symbol S: symbols)
-		{
-			Dot pos=S.getCenterDot();
-			if(  Math.abs(pos.getX()-position.getX())<=squareSize/2 &&
-				 Math.abs(pos.getY()-position.getY())<=squareSize/2
-					)
-				resSymbols.add(S);
-		}
-		return resSymbols;
-	}
-	/**
-	 * Choose a random edge and move it to a random new position.
-	 * @param Draw D
-	 * @return void
-	 */
-	public static void EdgeMutation1(Draw D)
-	{
-		List<Wire>wires=D.getWires();
-		int br=rand.nextInt(wires.size());
-		for(int i=br,len=wires.size();i<len;++i)
-		{
-			if(wires.get(i).isVisible())
-			{
-				
-				Symbol parent=wires.get(i).getParent();
-				Symbol child=wires.get(i).getChild();
-				Vec2d randVector=Geometric.returnVector();
-				parent.moveIt(new Dot(parent.getCenterDot().getX()+(int)randVector.x,
-						              parent.getCenterDot().getY()+(int)randVector.y));
-				
-				Vec2d randVector2=Geometric.returnVector();
-				child.moveIt(new Dot(child.getCenterDot().getX()+(int)randVector2.x,
-			              			 child.getCenterDot().getY()+(int)randVector2.y));
-				return;
-			}
-		}
-	}
-	/**
-	 *  Like EdgeMutation-1, but the length and angle of the edge is kept unchanged.
-	 * @param Draw D
-	 * @return void
-	 * @see EdgeMutation1
-	 */
-	public static void EdgeMutation2(Draw D)
-	{
-		Vec2d randVector=Geometric.returnVector();
-		EdgeMutation2(D, randVector);
-	}
-	/**
-	 *  Like EdgeMutation-1, but the length and angle of the edge is kept unchanged.
-	 *  In this function we gave specific edge that we want to be moved and vector also.
-	 * @param Draw D
-	 * @param Vec2d MovingVector
-	 * @return void
-	 */
-	public static void EdgeMutation2(Draw D,Vec2d MovingVector)
-	{
-		List<Wire>wires=D.getWires();
-		int br=rand.nextInt(wires.size());
-		for(int i=br,len=wires.size();i<len;++i)
-		{
-			if(wires.get(i).isVisible())
-			{
-				Symbol parent=wires.get(i).getParent();
-				Symbol child=wires.get(i).getChild();
-				
-				parent.moveIt(new Dot(parent.getCenterDot().getX()+(int)MovingVector.x,
-						              parent.getCenterDot().getY()+(int)MovingVector.y));
-				
-				child.moveIt(new Dot(child.getCenterDot().getX()+(int)MovingVector.x,
-			              			 child.getCenterDot().getY()+(int)MovingVector.y));
-				return;
-			}
-		}
-	}
-	/*
-	 * Change inputpins on the specific symbol in the pos position in the list of the symbols.
-	 * @param Draw D
-	 * @param int pos
-	 * @return void
-	 */
-	public static void ChangeInputPinsOfSymbol(Draw D,int pos)
-	{
-		
-	}
-	/*
-	 * Change inputpins on the some random OR / AND symbol.
-	 * @param Draw D
-	 * @return void
-	 */
-	public static void ChangeInputPins(Draw D)
-	{
-		
-	}
-	/**
-	 * Choose a random node and move it to a random empty square.
-	 * @param Draw D
-	 * @param int squareSize
-	 * @return void
-	 */
-	public static void SingleMutate(Draw D, int squareSize)
-	{
-		List<Symbol>symbols=D.getSymbols();
-		int broj=rand.nextInt(symbols.size());
-		Symbol s=symbols.get(broj);
-		int br=0;
-		while(br < 250)
-		{
-			
-			Dot d=new Dot( Dot.getRandom(200, 1050),
-					       Dot.getRandom(100, D.getHeight()));
-			if(GeneticOperations.isTheSquareClear(D, d, squareSize))
-			{
-				s.setPosition(d);
-				return;
-			}
-			++br;
-		}
-	}
-	/*
-	 * Like EdgeMutation-2(length and angle of the edge is kept unchanged), but two edges incident with a same node are moved.
-	 * @param Draw D
-	 * @return void
-	 */
-	public static void TwoEdgeMutation(Draw D)
-	{
-		Vector<Integer>MovingVector=new Vector<>();
-		MovingVector.addElement(rand.nextInt(100));
-		MovingVector.addElement(rand.nextInt(100));
-		
-		List<Wire>wires=D.getWires();
-		int br=0;
-		/*while(br<1500)
-		{
-			int pos=rand.nextInt(wires.size());
-			int pos2=rand.nextInt(wires.size());
-			if(pos==pos2)continue;
-			if(wires.get(pos).getChild()==null || wires.get(pos2).getChild()==null || wires.get(pos).getParent()==null || wires.get(pos2).getParent()==null)
-				continue;
-			
-			if(wires.get(pos).getParent().id==wires.get(pos2).getChild().id ||
-				wires.get(pos2).getParent().id==wires.get(pos).getChild().id)
-			{
-				 EdgeMutation2(D, pos, MovingVector);
-			 	 EdgeMutation2(D, pos2, MovingVector);
-				 return;
-			}
-			++br;
-		}*/
-	}
-	/*
-	 * Choose randomly two squares from the drawing area such that at least one of them contains a node. 
-	 * If both contain a node, exchange the nodes. 
-	 * If only one of them contains a node, then move the node from the present location to the empty square. 
-	 * @param Draw D
-	 * @param int squareSize
-	 * @return void
-	 */
-	public static void SmallMutate(Draw D,int squareSize)
-	{
-		
-	}
+	
 }

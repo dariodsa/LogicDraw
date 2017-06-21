@@ -1,13 +1,16 @@
 package hr.fer.MainPart;
 import hr.fer.Visual.*;
-
+import hr.fer.Parsing.*;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import javax.swing.*;
 
+import hr.fer.DrawObjects.Symbol;
 import hr.fer.GeneticAlgorithm.*;
 import hr.fer.Parsing.*;
 
@@ -94,55 +97,58 @@ public class MainFrame extends JFrame
 	//b*a+a*c+-b+c*(a+c*b+-d)
 	Draw BrutAllTheWay(String output)
 	{
-		Draw temp=new Draw(output,500,1100);
+		int len=Parser.getNumOfNodes(output);
+		
+		Draw temp=new Draw(output,500,1100,generateBitMask1(len),generateBitMask2(len));
 		
 		double mina=454546545;
 		
-		for(int i=0;i<8000;++i)
+		for(int i=0;i<16000;++i)
 		{
-			Draw D=new Draw(output,500,1100);
+			Draw D=new Draw(output,500,1100,generateBitMask1(len),generateBitMask2(len));
 			mina=Math.min(mina, D.getEdgeLengthDeviation());
-			if(i%1000==0)System.out.println(i+" "+temp.getEvaluationFunction()+" "+temp.getNumWiresCrossing()+" "+temp.numOfNodes+"-->"+mina);
+			if(i%1000==0)System.out.println(i+" "+temp.getEvaluationFunction()+" "+temp.getNumWiresCrossing()+"-->"+mina);
 			if(D.getEvaluationFunction()<temp.getEvaluationFunction())
 			{
 				temp=D;
 			}
 		}
-		
+		GeneticOperations.moveItLeftOrRight(temp);
 		return temp;
 	}
 	Draw startOfGA(String output)
 	{
-		List<Draw>draws=new ArrayList<>();
-		for(int i=0;i<10;++i)
+		
+		return null;
+	}
+	
+	
+	public List<Integer> generateBitMask1(int len)
+	{
+		List<Integer>list=new ArrayList<>();
+		Random rand=new Random();
+		for(int i=0;i<len;++i)
 		{
-			draws.add(new Draw(output,550,1100));
+			list.add(rand.nextInt(15));
 		}
-		
-		Population population=new Population(draws);
-		Draw ans=new Draw(output,550,1100);
-		
-		int b=1566;
-		for(int i=0;i<3000;++i)
+		return list;
+	}
+	public List<Integer> generateBitMask2(int len)
+	{
+		List<Integer>list=new ArrayList<>();
+		Random rand=new Random();
+		int kol=0;
+		for(int i=0;i<len;++i)
 		{
-			population.generateNewGeneration();
-			Draw bestDraw=population.getBestDrawFromPopulation();
-			
-			if(b>bestDraw.getNumWiresCrossing())
+			int pos=(int)rand.nextGaussian();
+			if(pos<=-2)list.add(kol);
+			else if(pos==-1 && kol==0 && kol==1){list.add(kol+1);++kol;}
+			else 
 			{
-				
-				ans.setSymbols(bestDraw.getSymbols());
-				ans.setWires(bestDraw.getWires());
-				System.out.println("hjkhjk");
-				b=new Integer(bestDraw.getNumWiresCrossing());
+				list.add(kol+2);
+				kol+=2;
 			}
-			
-			if(i%100==0)System.out.println(i+" "+bestDraw.getNumWiresCrossing()+" "+b);
-			//if(i==56)return bestDraw;
 		}
-		//GeneticOperations.EdgeMutation2(ans);
-		
-		//GeneticOperations.SingleMutate(ans, 18);
-		return ans;
+		return list;
 	}
 }

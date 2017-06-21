@@ -60,6 +60,8 @@ public class Draw
 					//Adding a new Symbol to the list, 1 operands
 					Symbol P2=new Symbol(Symbols.NOT,id++);
 					P2.addParent(P);
+					P.child=P2;
+					
 					S.push(P2);
 					symbols.add(P2);
 				}
@@ -79,6 +81,8 @@ public class Draw
 					
 					P2.addParent(P);
 					P2.addParent(P1);
+					P.child=P2;
+					P1.child=P2;
 					
 					S.push(P2);
 					symbols.add(P2);
@@ -87,7 +91,7 @@ public class Draw
 			else
 			{
 				Symbol s=new Symbol(Symbols.INPUT,id++);
-				s.setName(postfix.charAt(i)+"");
+				s.setName(postfix.charAt(i)+new Integer(i).toString());
 				if(ulazi.containsKey((s.getName()))==false)
 				{
 					ulazi.put((s.getName()), s);
@@ -185,7 +189,7 @@ public class Draw
 		this.wires=new ArrayList<Wire>(wires);
 	}		
 	/**
-	 * This doesn't work I don't know WHY ?????
+	 * It rotates the input pins in order to minimize the intersections.
 	 */
 	public void rotatePins()
 	{
@@ -195,12 +199,10 @@ public class Draw
 			{
 				Wire w1=S.getEnteringWire(0);
 				Wire w2=S.getEnteringWire(1);
-				
-				if(w1.getStart().getY()>w2.getStart().getY())
+				if(DoWiresCross(w1, w2))
 				{
-					//System.out.println(w1.getStart().getY()+" "+w2.getStart().getY());
-					w1.setInputPin(2);
-					w2.setInputPin(1);
+					w1.setInputPin(3-w1.getInputPin());
+					w2.setInputPin(3-w2.getInputPin());
 				}
 			}
 		}
@@ -218,6 +220,7 @@ public class Draw
 			if(S.getType()==Symbols.INPUT)center.setX(100);  
 			if(S.getType()==Symbols.OUTPUT)center.setX(1050);
 			if(S.isSymbolOutInType())center.setY(Dot.getRandom(100, 400));
+			if(S.getType()==Symbols.OUTPUT)center.setY(S.getParent(1).getCenterDot().getY());
 			S.setPosition(center);
 			
 			if(S.isSymbolOutInType()) //The input and output dots can't be moved in the x direction, only in the y direction.
@@ -225,7 +228,7 @@ public class Draw
 			
 			addInVisibleWireAroundTheSymbol(S);
 			
-			if(!S.isSymbolOutInType())++pos;
+			if(S.isSymbolOrAndType() || S.getType()==Symbols.NOT)++pos;
 		}
 		
 		return;

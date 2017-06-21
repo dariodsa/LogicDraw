@@ -13,6 +13,9 @@ public class Symbol implements SShape{
 	
 	private Symbols type;
 	private List<Symbol>parents=new ArrayList<>();
+	
+	public Symbol child; 
+	
 	private List<Wire>enteringWires=new ArrayList<>();
 	
 	private int id;
@@ -24,7 +27,7 @@ public class Symbol implements SShape{
 	
 	private Dot center;
 	private Dot output;
-	private List<Dot>inputDots=new ArrayList<>();
+	public List<Dot>inputDots=new ArrayList<>();
 	
 	public Symbol[]gridDots=new Symbol[5];
 	
@@ -206,7 +209,7 @@ public class Symbol implements SShape{
 		
 		if(type!=Symbols.GRID && type!=Symbols.EDGE)
 		{
-		int offSet=5;
+		int offSet=8;
 		if(type==Symbols.EDGE)offSet=-5;
 		
 		d1.setXandY(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()-getHeight()/2+offSet);
@@ -270,6 +273,9 @@ public class Symbol implements SShape{
 	{
 		return output;
 	}
+	/**
+	 * @param Variable num from 1 to n.
+	 */
 	public Dot getInput(int num)
 	{
 		return inputDots.get(num-1);

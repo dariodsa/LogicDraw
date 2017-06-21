@@ -26,7 +26,19 @@ public class Wire implements SShape
 		this.visible=visible;
 	}
 	
-	/*
+	/**
+	 * Sets the input pin of the wire.
+	 * @param inputPin
+	 */
+	public void setInputPin(int inputPin)
+	{
+		this.inputPin=inputPin;
+	}
+	public int getInputPin()
+	{
+		return this.inputPin;
+	}
+	/**
 	 * Sets the object's attribute visible to the given value.
 	 * @param boolean
 	 * @return void
@@ -35,7 +47,7 @@ public class Wire implements SShape
 	{
 		this.visible=visible;
 	}
-	/*
+	/**
 	 * Returns if is the wire visible, important for drawing.
 	 * @return boolean
 	 */
@@ -43,7 +55,7 @@ public class Wire implements SShape
 	{
 		return this.visible;
 	}
-	/*
+	/**
 	 * Sets the parent symbol. See also getParent.
 	 * @param Symbol
 	 * @return void
@@ -52,7 +64,7 @@ public class Wire implements SShape
 	{
 		this.parent=parent;
 	}
-	/*
+	/**
 	 * Returns the symbol from which is the wire connected.(child). See also start dot. 
 	 * @return Symbol
 	 */
@@ -60,7 +72,7 @@ public class Wire implements SShape
 	{
 		return this.parent;
 	}
-	/*
+	/**
 	 * Sets the child symbol. See also getChild.
 	 * @param Symbol
 	 * @return void
@@ -69,7 +81,7 @@ public class Wire implements SShape
 	{
 		this.child=child;
 	}
-	/*
+	/**
 	 * Returns the symbol on which is the wire connected.(child). See also end dot. 
 	 * @return Symbol
 	 */
@@ -85,7 +97,7 @@ public class Wire implements SShape
 	{
 		return this.parent.getOutputDot();
 	}
-	/*
+	/**
 	 * Returns the end dot.
 	 * @return Dot
 	 */
@@ -93,7 +105,7 @@ public class Wire implements SShape
 	{
 		return this.child.getInput(inputPin);
 	}
-	/*
+	/**
 	 * Returns the length of the wire.
 	 * @return double
 	 */

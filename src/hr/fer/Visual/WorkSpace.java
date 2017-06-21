@@ -97,10 +97,11 @@ public class WorkSpace extends JPanel
         {
         	try {
 				S.draw(g);
+				
 				if(S instanceof Symbol)
 				{
 					Symbol S1=(Symbol)S;
-					//if(S1.isSymbolOutInType())
+					if(S1.isSymbolOutInType())
 						paintINOUT(S1);
 				}
 			} catch (IOException e) {e.printStackTrace();}
@@ -164,6 +165,7 @@ public class WorkSpace extends JPanel
 				D.setY(D.getY()+5);
 				selected.moveIt(D);
 			}
+			skica.rotatePins();
 			repaint();
 		}
 	}

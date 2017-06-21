@@ -53,5 +53,18 @@ public class Parser
 		while(!S.isEmpty()){output+=S.peek();S.pop();}
 		return output;
 	}
-	
+	public static int getNumOfNodes(String postfix)
+	{
+		int ans=0;
+		
+		for(int i=0;i<postfix.length();++i)
+		{
+			if(postfix.charAt(i)=='-' ||
+			   postfix.charAt(i)=='*' || 
+			   postfix.charAt(i)=='+')++ans; 
+			//else if(postfix.charAt(i)>='a' && postfix.charAt(i)<='z')ulaz.put((postfix.charAt(i)+new Integer(i).toString()).toLowerCase(), 2);
+			//else if(postfix.charAt(i)>='A' && postfix.charAt(i)<='Z')ulaz.put((postfix.charAt(i)+new Integer(i).toString()).toLowerCase(), 2);
+		}
+		return ans+1;
+	}
 }
