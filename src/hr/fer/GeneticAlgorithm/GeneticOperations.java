@@ -10,7 +10,8 @@ public class GeneticOperations
 {
 	private static Random rand=new Random();
 	
-	/*
+	
+	/**
 	 * Function returns true if the square of a size squareSize around Dot position is empty.
 	 * @Draw D
 	 * @param Dot position
@@ -30,7 +31,7 @@ public class GeneticOperations
 		}
 		return true;
 	}
-	/*
+	/**
 	 * Function returns the list of the symbols that are in the specific square.
 	 * @Draw D
 	 * @param Dot position
@@ -51,7 +52,7 @@ public class GeneticOperations
 		}
 		return resSymbols;
 	}
-	/*
+	/**
 	 * Choose a random edge and move it to a random new position.
 	 * @param Draw D
 	 * @return void
@@ -60,71 +61,61 @@ public class GeneticOperations
 	{
 		List<Wire>wires=D.getWires();
 		int br=rand.nextInt(wires.size());
-		for(int i=br,len=wires.size();i<len;i=(i+1)%len)
+		for(int i=br,len=wires.size();i<len;++i)
 		{
 			if(wires.get(i).isVisible())
 			{
-				Dot start=wires.get(i).getStart();
-				Dot end=wires.get(i).getEnd();
 				
+				Symbol parent=wires.get(i).getParent();
+				Symbol child=wires.get(i).getChild();
 				Vec2d randVector=Geometric.returnVector();
-				wires.get(i).getStart()
-							.setXandY(
-									wires.get(i).getStart().getX()+(int)randVector.x, 
-									wires.get(i).getStart().getY()+(int)randVector.y);
+				parent.moveIt(new Dot(parent.getCenterDot().getX()+(int)randVector.x,
+						              parent.getCenterDot().getY()+(int)randVector.y));
 				
 				Vec2d randVector2=Geometric.returnVector();
-				wires.get(i).getEnd()
-							.setXandY(
-									wires.get(i).getEnd().getX()+(int)randVector2.x, 
-									wires.get(i).getEnd().getY()+(int)randVector2.y);
+				child.moveIt(new Dot(child.getCenterDot().getX()+(int)randVector2.x,
+			              			 child.getCenterDot().getY()+(int)randVector2.y));
 				return;
 			}
 		}
 	}
-	/*
+	/**
 	 *  Like EdgeMutation-1, but the length and angle of the edge is kept unchanged.
 	 * @param Draw D
 	 * @return void
+	 * @see EdgeMutation1
 	 */
 	public static void EdgeMutation2(Draw D)
 	{
-		List<Wire>wires=D.getWires();
-		int br=rand.nextInt(wires.size());
-		for(int i=br,len=wires.size();i<len;i=(i+1)%len)
-		{
-			if(wires.get(i).isVisible())
-			{
-				Dot start=wires.get(i).getStart();
-				Dot end=wires.get(i).getEnd();
-				
-				Vec2d randVector=Geometric.returnVector();
-				wires.get(i).getStart()
-							.setXandY(
-									wires.get(i).getStart().getX()+(int)randVector.x, 
-									wires.get(i).getStart().getY()+(int)randVector.y);
-				
-				
-				wires.get(i).getEnd()
-							.setXandY(
-									wires.get(i).getEnd().getX()+(int)randVector.x, 
-									wires.get(i).getEnd().getY()+(int)randVector.y);
-				
-				return;
-			}
-		}
+		Vec2d randVector=Geometric.returnVector();
+		EdgeMutation2(D, randVector);
 	}
-	/*
+	/**
 	 *  Like EdgeMutation-1, but the length and angle of the edge is kept unchanged.
 	 *  In this function we gave specific edge that we want to be moved and vector also.
 	 * @param Draw D
-	 * @param intger pos
-	 * @param Vector<Integer> MovingVector
+	 * @param Vec2d MovingVector
 	 * @return void
 	 */
-	public static void EdgeMutation2(Draw D,int pos,Vector<Integer> MovingVector)
+	public static void EdgeMutation2(Draw D,Vec2d MovingVector)
 	{
-		
+		List<Wire>wires=D.getWires();
+		int br=rand.nextInt(wires.size());
+		for(int i=br,len=wires.size();i<len;++i)
+		{
+			if(wires.get(i).isVisible())
+			{
+				Symbol parent=wires.get(i).getParent();
+				Symbol child=wires.get(i).getChild();
+				
+				parent.moveIt(new Dot(parent.getCenterDot().getX()+(int)MovingVector.x,
+						              parent.getCenterDot().getY()+(int)MovingVector.y));
+				
+				child.moveIt(new Dot(child.getCenterDot().getX()+(int)MovingVector.x,
+			              			 child.getCenterDot().getY()+(int)MovingVector.y));
+				return;
+			}
+		}
 	}
 	/*
 	 * Change inputpins on the specific symbol in the pos position in the list of the symbols.
@@ -145,7 +136,7 @@ public class GeneticOperations
 	{
 		
 	}
-	/*
+	/**
 	 * Choose a random node and move it to a random empty square.
 	 * @param Draw D
 	 * @param int squareSize
@@ -153,7 +144,22 @@ public class GeneticOperations
 	 */
 	public static void SingleMutate(Draw D, int squareSize)
 	{
-		
+		List<Symbol>symbols=D.getSymbols();
+		int broj=rand.nextInt(symbols.size());
+		Symbol s=symbols.get(broj);
+		int br=0;
+		while(br < 250)
+		{
+			
+			Dot d=new Dot( Dot.getRandom(200, 1050),
+					       Dot.getRandom(100, D.getHeight()));
+			if(GeneticOperations.isTheSquareClear(D, d, squareSize))
+			{
+				s.setPosition(d);
+				return;
+			}
+			++br;
+		}
 	}
 	/*
 	 * Like EdgeMutation-2(length and angle of the edge is kept unchanged), but two edges incident with a same node are moved.
@@ -162,7 +168,6 @@ public class GeneticOperations
 	 */
 	public static void TwoEdgeMutation(Draw D)
 	{
-		Random rand=new Random();
 		Vector<Integer>MovingVector=new Vector<>();
 		MovingVector.addElement(rand.nextInt(100));
 		MovingVector.addElement(rand.nextInt(100));

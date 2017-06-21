@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 
 public class Draw 
 {
-	private List<Dot>dots=new ArrayList<>();
 	private List<Wire>wires=new ArrayList<>();
 	private List<Symbol>symbols=new ArrayList<>();
 	private List<SShape>shapes=new ArrayList<>();
@@ -19,17 +18,22 @@ public class Draw
 	private double minimumNodeDistanceSum;
 	private double minimumNodeDistance;
 	private double edgeLengthDeviation;
-	private double edgeCrossing;
+	private double totalDistance;
+	private int edgeCrossing;
 	public double numOfNodes=0;
 	
 	private int height=500;
 	private int width=1000;
 	
+	private List<Symbol>temp_list=new ArrayList<>();
 	private static Random rand=new Random();
-	private List<Symbol>tempList=new ArrayList<>();
 	public String postfix;
 	
-	
+	public Draw(int height,int width)
+	{
+		this.height=height;
+		this.width=width;
+	}
 	public Draw(String postfix,int height,int width)
 	{
 		this.postfix=postfix;
@@ -85,9 +89,9 @@ public class Draw
 			{
 				Symbol s=new Symbol(Symbols.INPUT,id++);
 				s.setName(postfix.charAt(i)+"");
-				if(ulazi.containsKey((String)s.getName())==false)
+				if(ulazi.containsKey((s.getName()))==false)
 				{
-					ulazi.put(s.getName(), s);
+					ulazi.put((s.getName()), s);
 					symbols.add(s);
 					S.push(ulazi.get(s.getName()));
 				}
@@ -105,26 +109,49 @@ public class Draw
 		out.setName("Out");
 		out.addParent(P);
 		symbols.add(out);
+		
+		
 		generate();
+		//TopologicalSort();
+		setEvaluationVariables();
 	}
+	
+	public Draw duplicate()
+	{
+		Draw D=new Draw(height,width);
+		
+		D.setWires(new ArrayList<Wire>(wires));
+		D.setSymbols(new ArrayList<Symbol>(symbols));
+		
+		D.minimumNodeDistance=this.minimumNodeDistance;
+		D.minimumNodeDistanceSum=this.minimumNodeDistanceSum;
+		D.edgeCrossing=this.edgeCrossing;
+		
+		return D;
+	}
+	
 	public void generate()
 	{
 		addCentralDots();
+		rotatePins();
+		
+		symbols.sort((t1,t2)->Integer.compare(t1.getDepth(),t2.getDepth()));
+		
 		for(Symbol simbol: symbols)
 		{
+			if(simbol.getType()==Symbols.INPUT)
+				simbol.setDepth(1,true);
 			for(Symbol parent: simbol.getParents())
-					generateWires(parent, simbol);
+			{
+				generateWires(parent, simbol);
+				simbol.setDepth(parent.getDepth()+1);
+			}
 		}
-		
-		//I am adding extra edges in the connection between 
-		for(Symbol s1: tempList)
+		for(Symbol S:temp_list)
 		{
-			symbols.add(s1);
+			symbols.add(S);
 		}
-		Random r=new Random();
-		int ra=r.nextInt(3);
-		//for(int i=0;i<ra;++i)
-		rotatePinsInSomeSymbols();
+		//rotatePinsInSomeSymbols();
 	}
 	/*
 	 * Corrects the position of the Symbols.
@@ -137,35 +164,30 @@ public class Draw
 	{
 		
 	}
-	private void rotatePinsInSomeSymbols()
+	public void setSymbols(List<Symbol>symbols)
 	{
-		Random r=new Random();
+		this.symbols=new ArrayList<Symbol>(symbols);
+	}	
+	public void setWires(List<Wire>wires)
+	{
+		this.wires=new ArrayList<Wire>(wires);
+	}		
+	private void rotatePins()
+	{
 		for(int i=0,len=symbols.size();i<len;i=(i+1))
 		{
-			//System.out.println(br+" "+ra+" "+i+ " "+len);
 			if(symbols.get(i).isSymbolOrAndType())
 			{
-				int br=getWiresCrossing();
+				Symbol S1=symbols.get(i).getParent(1);
+				Symbol S2=symbols.get(i).getParent(2);
 				
-				//zamjena 
-				Symbol simbol=symbols.get(i);
-				Wire W1=simbol.getEnteringWire(0);
-				Wire W2=simbol.getEnteringWire(1);
-				Dot temp=W1.getEnd();
-				W1.setEnd(W2.getEnd());
-				W2.setEnd(temp);
-				
-				if(br<getWiresCrossing())
+				if(S1.getCenterDot().getY()>S2.getCenterDot().getY())
 				{
-					Symbol simbola=symbols.get(i);
-					Wire W1a=simbola.getEnteringWire(0);
-					Wire W2a=simbola.getEnteringWire(1);
-					Dot tempa=W1a.getEnd();
-					W1a.setEnd(W2a.getEnd());
-					W2a.setEnd(tempa);
+					List<Symbol>L=new ArrayList<>();
+					L.add(S2);
+					L.add(S1);
+					symbols.get(i).setParents(L);
 				}
-				//return;
-				
 			}
 		}
 		return;
@@ -175,40 +197,37 @@ public class Draw
 		for(Symbol S: symbols)
 		{
 			Dot center=new Dot(Dot.getRandom(200, 900),
-					           Dot.getRandom(175, 575));
+					           Dot.getRandom(125, 595));
 			
 			if(S.getType()==Symbols.INPUT)center.setX(100);  
 			if(S.getType()==Symbols.OUTPUT)center.setX(1050);
 			
-			dots.add(center);
 			S.setPosition(center);
 			
 			if(S.isSymbolOutInType()) //The input and output dots can't be moved in the x direction, only in the y direction.
 				S.getCenterDot().setCanYouMoveIt(false);
 			
-			if(S.getType()!=Symbols.EDGE)
+			if(S.getType()!=Symbols.GRID)
 			{
 				addInVisibleWireAroundTheSymbol(S);
 			}
 		}
-		for(Symbol s:tempList)
-			symbols.add(s);
+		
 		return;
 	}
 	
 	private void addInVisibleWireAroundTheSymbol(Symbol S) 
 	{
-		int offSet=7;
 		
-		Dot d1=new Dot(S.getCenterDot().getX()-S.getWidth()/2+offSet, S.getCenterDot().getY()-S.getHeight()/2+offSet);
-		Dot d2=new Dot(S.getCenterDot().getX()+S.getWidth()/2-offSet, S.getCenterDot().getY()-S.getHeight()/2+offSet);
-		Dot d3=new Dot(S.getCenterDot().getX()+S.getWidth()/2-offSet, S.getCenterDot().getY()+S.getHeight()/2-offSet);
-		Dot d4=new Dot(S.getCenterDot().getX()-S.getWidth()/2+offSet, S.getCenterDot().getY()+S.getHeight()/2-offSet);
+		Wire w1=new Wire(S.gridDots[0],S.gridDots[1],1,false);
+		Wire w2=new Wire(S.gridDots[1],S.gridDots[2],1,false);
+		Wire w3=new Wire(S.gridDots[2],S.gridDots[3],1,false);
+		Wire w4=new Wire(S.gridDots[3],S.gridDots[0],1,false);
 		
-		Wire w1=new Wire(d1,d2,false);
+		/*Wire w1=new Wire(d1,d2,false);
 		Wire w2=new Wire(d2,d3,false);
 		Wire w3=new Wire(d3,d4,false);
-		Wire w4=new Wire(d4,d1,false);
+		Wire w4=new Wire(d4,d1,false);*/
 		
 		wires.add(w1);wires.add(w2);wires.add(w3);wires.add(w4);
 		return;
@@ -216,56 +235,47 @@ public class Draw
 	private void generateWires(Symbol p2, Symbol p)
 	{
 		checkThePosition(p2, p);
+		int pin=p.getNextEmptyPin();
+		/*
 		
-		Dot d1=Dot.getRandomDot(p2.getOutputDot(), p.getInput(p.getNextEmptyPin()));
+		Dot d1=Dot.getRandomDot(p2.getOutputDot(), p.getInput(pin));
 		
 		
-		
-		dots.add(d1);
 		Symbol S=new Symbol(Symbols.EDGE,p2.getId());
 		S.addParent(p2);
 		S.setPosition(d1);
 		
-		//Dot d4=new Dot(p2.getOutputDot());
-		Wire W=new Wire(p2.getOutputDot(),S.getLocation());
+		Wire W=new Wire(p2,S,1);
 		S.AddEnteringWire(W);
-		tempList.add(S);
-		++numOfNodes;
-		W.setParent(p2);
-		W.setChild(S);
+		temp_list.add(S);
 		
 		wires.add(W);
-		Dot temp=d1;
-		Symbol temp2=S;
-		for(int i=0,r1=rand.nextInt(3);i<0;++i)
+		*/
+		Dot temp=p2.getLocation();
+		Symbol temp2=p2;
+		for(int i=0,r1=rand.nextInt(1);i<0;++i)
 		{
-			Dot d2=Dot.getRandomDot(temp, p.getInput(p.getNextEmptyPin()));
-			
-			dots.add(d2);
-			
+			//System.out.println(temp+"+"+ p.getInput(pin));
+			Dot d2=Dot.getRandomDot(temp, p.getInput(pin));
+			//System.out.println(d2);
 			Symbol S1=new Symbol(Symbols.EDGE,p2.getId());
 			S1.addParent(temp2);
 			S1.setPosition(d2);
 			
+			Wire W2=new Wire(temp2,S1,1);
 			
-			Wire W2=new Wire(temp2.getLocation(),S1.getLocation());
-			
-			W2.setParent(temp2);
-			W2.setChild(S1);
 			wires.add(W2);
 			S1.AddEnteringWire(W2);
-			tempList.add(S1);
+			temp_list.add(S1);
 			++numOfNodes;
 			temp=d2;
 			temp2=S1;
 		}
-		Dot d=new Dot(p.getInput(p.getNextEmptyPin()));
+		//System.out.println(temp2.getLocation()+"+(kraj)+"+ p.getInput(pin));
+		Wire W1=new Wire(temp2,p,p.getNextEmptyPin());
 		
-		Wire W1=new Wire(temp2.getLocation(),p.getInput(p.getNextEmptyPin()));
 		
-		W1.setParent(temp2);
-		W1.setChild(p);
-		//W1.setNumOfPinInput(1);
+		
 		wires.add(W1);	
 	
 		p.AddEnteringWire(W1);
@@ -274,17 +284,9 @@ public class Draw
 		
 		
 	}
-	public List<Symbol>getSymbols()
-	{
-		return this.symbols;
-	}
 	public List<Wire>getWires()
 	{
 		return this.wires;
-	}
-	public List<Dot>getDots()
-	{
-		return this.dots;
 	}
 	public int getHeight()
 	{
@@ -294,28 +296,11 @@ public class Draw
 	{
 		return this.width;
 	}
-	public void setDots(List<Dot>L)
+	public List<Symbol>getSymbols()
 	{
-		for(int i=0;i<L.size();++i)
-		{
-			this.dots.get(i).setXandY(L.get(i).getX(),L.get(i).getY());
-		}
+		return this.symbols;
 	}
-	public void setSymbols(List<Symbol>L)
-	{
-		for(int i=0;i<L.size();++i)
-		{
-			this.symbols.get(i).setPosition(L.get(i).getCenterDot());
-		}
-	}
-	public void setWires(List<Wire>L)
-	{
-		for(int i=0;i<L.size();++i)
-		{
-			this.wires.get(i).setStart(L.get(i).getStart());
-			this.wires.get(i).setEnd(L.get(i).getEnd());
-		}
-	}
+	
 	public List<SShape> getShapes()
 	{
 		shapes.clear();
@@ -327,7 +312,9 @@ public class Draw
 		
 		return shapes;
 	}
-	/*
+	
+	
+	/**
 	 * Function returns true if the given wires cross, false otherwise. 
 	 * @param Wire A
 	 * @param Wire B
@@ -341,12 +328,16 @@ public class Draw
 									  B.getStart().getX(),B.getStart().getY(),
 									  B.getEnd().getX(),B.getEnd().getY());
 	}
-	/*
+	public int getNumWiresCrossing()
+	{
+		return this.edgeCrossing;
+	}
+	/**
 	 * Function returns the number of the intersection of the Draw.
 	 * @see DoWiresCross
-	 * @return int
+	 * @return number of intersection
 	 */
-	public int getWiresCrossing()
+	private int getWiresCrossing()
 	{
 		//return 8;
 		int ans=0;
@@ -385,7 +376,7 @@ public class Draw
 		}
 		return ans;
 	}
-	/*
+	/**
 	 * Minimum Node Distance (Nbr of Nodes * Min. Node Distance2): This term helps
 	 * in distributing the nodes. The square of minimum node distance is multiplied by the
 	 * number of nodes.
@@ -394,13 +385,13 @@ public class Draw
 	{
 		
 	}
-	/*
+	/**
 	 * Minimum Node Distance Sum (Min. Node Dist. Sum): The distance of each node
 	 * from its nearest neighbour is measured, and the distances are added up. The bigger
 	 * the sum the more evenly the nodes are usually distributed over the drawing area.
 	 * @return void
 	 */
-	void setMinimumNodeDistanceSum()
+	private void setMinimumNodeDistanceSum()
 	{
 		double ans=0;
 		for(int i=0,len=symbols.size();i<len;++i)
@@ -415,21 +406,35 @@ public class Draw
 		}
 		this.minimumNodeDistanceSum=ans;
 	}
+	public double getMinimumNodeDistance()
+	{
+		return this.minimumNodeDistanceSum;
+	}
+	public double getTotalDistance()
+	{
+		double ans=0;
+		for(Wire w:wires)
+			if(w.isVisible())
+				ans+=w.getLength();
+		return ans;
+	}
 	public void setEvaluationVariables()
 	{
 		this.edgeCrossing=getWiresCrossing();
 		this.edgeLengthDeviation=getEdgeLengthDeviation();
+		this.totalDistance=getTotalDistance();
 		setMinimumNodeDistance();
 		setMinimumNodeDistanceSum();
 		
 	}
 	public double getEvaluationFunction()
 	{
-		setEvaluationVariables();
+		//setEvaluationVariables();
 		//System.out.println(minimumNodeDistance+" "+minimumNodeDistanceSum+" "+edgeLengthDeviation+" "+edgeCrossing);
-		return 390 * edgeCrossing
+		return 5000090 * edgeCrossing
+				+totalDistance
 				+edgeLengthDeviation
-				-minimumNodeDistanceSum;
+				-15*minimumNodeDistanceSum;
 	}
 	
 }

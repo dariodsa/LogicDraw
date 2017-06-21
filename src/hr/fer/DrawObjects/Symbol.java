@@ -12,18 +12,22 @@ import javax.imageio.ImageIO;
 public class Symbol implements SShape{
 	
 	private Symbols type;
-	private List<Symbol>parents;
-	private List<Wire>enteringWires;
+	private List<Symbol>parents=new ArrayList<>();
+	private List<Wire>enteringWires=new ArrayList<>();
 	
 	private int id;
 	private int height;
 	private int width;
+	private int depth=0;
 	
 	private String name;
 	
 	private Dot center;
 	private Dot output;
-	private List<Dot>inputDots;
+	private List<Dot>inputDots=new ArrayList<>();
+	
+	public Symbol[]gridDots=new Symbol[5];
+	
 	public Symbol()
 	{
 		parents=new ArrayList<>();
@@ -32,22 +36,33 @@ public class Symbol implements SShape{
 		this.center=new Dot(0,0);
 		this.output=new Dot(0,0);
 		setSize(75, 75);
-		
 	}
 	public Symbol(Symbols type)
 	{
 		this();
 		this.type=type;
 		
+		if(type==Symbols.INPUT)
+			depth=1;
 		if(type==Symbols.INPUT || type==Symbols.OUTPUT)
 			setSize(35, 25);
+		if(type==Symbols.EDGE || type==Symbols.GRID)
+			setSize(1,1);
+		
+		if(type!=Symbols.GRID)
+			for(int i=0;i<4;++i)gridDots[i]=new Symbol(Symbols.GRID);
+	}
+	public Symbol(Symbols type,Dot position)
+	{
+		this(type);
+		setPosition(position);
 	}
 	public Symbol(Symbols type,int id)
 	{
 		this(type);
 		this.id=id;
 	}
-	/*
+	/**
 	 * Sets the width and the height of the element.
 	 * @param int height
 	 * @param int width
@@ -70,7 +85,7 @@ public class Symbol implements SShape{
 	{
 		return this.type;
 	}
-	/*
+	/**
 	 * Returns the height of the symbol.
 	 * @return int
 	 */
@@ -78,7 +93,7 @@ public class Symbol implements SShape{
 	{
 		return this.height;
 	}
-	/*
+	/**
 	 * Returns the width of the symbol.
 	 * @return int
 	 */
@@ -86,7 +101,7 @@ public class Symbol implements SShape{
 	{
 		return this.width;
 	}
-	/*
+	/**
 	 * Returns the list of the parents. Parents are symbols that are connected to this symbol.
 	 * @return List<Symbol>
 	 */
@@ -94,16 +109,18 @@ public class Symbol implements SShape{
 	{
 		return this.parents;
 	}
-	/*
+	/**
 	 * Sets the parents. See also for more information, getParents.
 	 * @param List<Symbol>
 	 * @return void
 	 */
 	public void setParents(List<Symbol> parentsTemp)
 	{
-		parents=new ArrayList<>(parentsTemp);
+		parents.clear();
+		for(Symbol S: parentsTemp)
+			addParent(S);
 	}
-	/*
+	/**
 	 * Returns the parent with at a specific location which is given as the parametar of the function.
 	 * First parent is at location 1.
 	 * @param int pos
@@ -115,13 +132,14 @@ public class Symbol implements SShape{
 			throw new RuntimeException("This parent does not exsist.");
 		return this.parents.get(pos-1);
 	}
-	/*
+	/**
 	 * Adds new parent to list of the existing. 
 	 * @param Symbol
 	 * @return void
 	 */
 	public void addParent(Symbol parent)
 	{
+		
 		parents.add(parent);
 	}
 	public void AddEnteringWire(Wire W1)
@@ -136,6 +154,27 @@ public class Symbol implements SShape{
 	{
 		return enteringWires.get(pos);
 	}
+	/**
+	 * Returns the depth of the given symbol in the draw. This is used in the construct of the draw, topological sort. 
+	 * @return int depth 
+	 */
+	public int getDepth()
+	{
+		return this.depth;
+	}
+	/**
+	 * Sets the depth of the symbol if the given depth is larger than the previous.
+	 * @param depth from one to ...
+	 */
+	public void setDepth(int depth)
+	{
+		this.depth=Math.max(this.depth, depth);
+	}
+	public void setDepth(int depth,boolean change)
+	{
+		this.depth=depth;
+	}
+	
 	
 	public void setPosition(Dot center)
 	{
@@ -145,6 +184,7 @@ public class Symbol implements SShape{
 		
 		
 		int numOfParents=parents.size();
+		if(numOfParents==0)numOfParents=1;
 		int br=1;
 		if(inputDots.isEmpty())
 		{
@@ -164,10 +204,32 @@ public class Symbol implements SShape{
 			++br;
 		}
 		
+		if(type!=Symbols.GRID && type!=Symbols.EDGE)
+		{
+		int offSet=5;
+		if(type==Symbols.EDGE)offSet=-5;
+		
+		d1.setXandY(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()-getHeight()/2+offSet);
+		d2.setXandY(getCenterDot().getX()+getWidth()/2-offSet, getCenterDot().getY()-getHeight()/2+offSet);
+		d3.setXandY(getCenterDot().getX()+getWidth()/2-offSet, getCenterDot().getY()+getHeight()/2-offSet);
+		d4.setXandY(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()+getHeight()/2-offSet);
+		//gridDots.clear();
+		
+		gridDots[0].setPosition(new Dot(d1));
+		gridDots[1].setPosition(new Dot(d2));
+		gridDots[2].setPosition(new Dot(d3));
+		gridDots[3].setPosition(new Dot(d4));
+		}
+		
 		
 	}
 	
-	/*
+	Dot d1=new Dot(0,0);
+	Dot d2=new Dot(0,0);
+	Dot d3=new Dot(0,0);
+	Dot d4=new Dot(0,0);
+	
+	/**
 	 * Function returns the id of a symbol. It is used in the Wire.
 	 * @see_also Wire 
 	 * @return int
@@ -176,7 +238,7 @@ public class Symbol implements SShape{
 	{
 		return this.id;
 	}
-	/*
+	/**
 	 * Gets the name of the symbol. It will be display just near the symbol in the main draw. Right now this
 	 * is used only on input and output pins. 
 	 */
@@ -184,7 +246,7 @@ public class Symbol implements SShape{
 	{
 		return this.name;
 	}
-	/*
+	/**
 	 * Sets the name of the symbol. 
 	 */
 	public void setName(String name)

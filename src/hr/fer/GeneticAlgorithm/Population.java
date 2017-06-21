@@ -6,16 +6,15 @@ import hr.fer.MainPart.*;
 
 public class Population 
 {
-	int generation;
 	List<Draw> draws=new ArrayList<>();
 	public static int crossoverRate=4;
 	public static int mutationRate=42;
-	public Population(List<Draw> draws,int numOfGeneration)
+	public Population(List<Draw> draws)
 	{
 		setNewGeneration(draws);
 		
 	}
-	/*
+	/**
 	 * Return the best evaluation function in the given population.
 	 * @return double
 	 */
@@ -27,7 +26,7 @@ public class Population
 		
 		return ans;
 	}
-	/*
+	/**
 	 * Sets the new generation, which was received in the call of the function.
 	 * @param List<Draw> draws
 	 * @return void
@@ -40,9 +39,9 @@ public class Population
 			addNewDraw(D);
 		}
 	}
-	/*
+	/**
 	 * This function generates new generation based on the selection of the parents.
-	 * Currently all constants are hard-coded, but this will be changed.
+	 * Currently all constants are hard-coded, but this will change soon.
 	 * @return void
 	 */
 	public void generateNewGeneration()
@@ -50,10 +49,10 @@ public class Population
 		int size=draws.size();
 		evaluate();
 		List<Draw>kids=new ArrayList<>();
-		for(int i=size-1;i>=size/2-4;--i)
+		for(int i=size-1;i>=size/2;--i)
 		{
 			Draw D=draws.get(i);
-			kids.add(D);
+			kids.add(D.duplicate());
 			muttation(D);
 			kids.add(D);
 		}
@@ -66,7 +65,7 @@ public class Population
 		}
 		for(int i=0;i<4;++i)
 		{
-			addNewDraw(new Draw(postfix,550,1100));
+			//addNewDraw(new Draw(postfix,550,1100));
 		}
 	}
 	private void killTheGeneration()
@@ -74,20 +73,20 @@ public class Population
 		draws.clear();
 		return;
 	}
-	/*
-	 * Get the best draw from the population.
+	/**
+	 * Get the best draw from the population using the evaluation function.
 	 * @param void
-	 * @return Draw
+	 * @return Draw - best draw  
 	 */
 	public Draw getBestDrawFromPopulation()
 	{
 		if(draws.size()==0)
 			return null;
 		Draw ans=draws.get(0);
-		int brAns=ans.getWiresCrossing();
+		double brAns=ans.getEvaluationFunction();
 		for(Draw D : draws)
 		{
-			int temp=D.getWiresCrossing();
+			double temp=D.getEvaluationFunction();
 			if(temp<brAns)
 			{
 				ans=D;
@@ -96,35 +95,51 @@ public class Population
 		}
 		return ans;
 	}
+	/**
+	 * Mutate the single draw.
+	 * @param Draw D
+	 * @return void
+	 */
 	public void muttation(Draw D)
 	{
 		Random rand=new Random();
-		int pos=rand.nextInt(65);
+		int pos=rand.nextInt(35);
 		
-		if(pos<=12)GeneticOperations.TwoEdgeMutation(D);
-		if(pos>12 && pos<=12+10)GeneticOperations.EdgeMutation2(D);
-		if(pos>12+10 && pos<=12+10+10)GeneticOperations.SingleMutate(D, 100);
-		if(pos>12+10+10 && pos<=12+10+10+5)GeneticOperations.EdgeMutation1(D);
-		if(pos>12+10+10+5 && pos<=12+10+10+5+5)GeneticOperations.SmallMutate(D, 100);
-		else
+		if(pos<=18)GeneticOperations.SingleMutate(D, 18);
+		else if(pos>18 && pos<=18+5)GeneticOperations.EdgeMutation2(D);
+		//else 
+		
+		D.setEvaluationVariables();
+		
+		/*else
 		{
 			GeneticOperations.ChangeInputPins(D);
-		}
+		}*/
 		
 	}
+	/**
+	 * Sorts the draws in the asc order using the evaluation function.
+	 * @return void
+	 */
 	public void evaluate()
 	{
 		draws.sort(new Comparator<Draw>() {
 
 			@Override
 			public int compare(Draw o1, Draw o2) {
-				return Double.compare(o1.getEvaluationFunction(), o2.getEvaluationFunction());
+				//return Double.compare(o1.getEvaluationFunction(), o2.getEvaluationFunction());
+				if(o1.getNumWiresCrossing()==o2.getNumWiresCrossing())
+				{
+					return Double.compare(o1.getTotalDistance()+o1.getMinimumNodeDistance(),
+										  o2.getTotalDistance()+o2.getMinimumNodeDistance());
+				}
+				else return Integer.compare(o1.getNumWiresCrossing(), o2.getNumWiresCrossing());
 			}
 		});
 		
 	}
 	
-	/*
+	/**
 	 * Adds new draw to the population.
 	 * @param Draw d
 	 * @return void
@@ -133,7 +148,7 @@ public class Population
 	{
 		draws.add(d);
 	}
-	/*
+	/**
 	 * Generate new Draw based on the parents.
 	 * @param Draw parent1
 	 * @param Draw parent2
@@ -143,7 +158,7 @@ public class Population
 	{
 		return null;
 	}
-	/*
+	/**
 	 * Selects some draw from the whole population. 
 	 * This is actually, a function to choose a parent.
 	 */

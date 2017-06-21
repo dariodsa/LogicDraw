@@ -7,22 +7,22 @@ import java.awt.Graphics;
 
 public class Wire implements SShape
 {
-	private Dot start;
-	private Dot end;
 	private Symbol parent;
 	private Symbol child;
 	
+	private int inputPin;
 	private boolean visible;
 	
-	public Wire(Dot start,Dot end)
+	public Wire(Symbol parent,Symbol child,int intputPin)
 	{
-		this.start=start;
-		this.end=end;
+		this.parent=parent;
+		this.child=child;
+		this.inputPin=intputPin;
 		this.visible=true;
 	}
-	public Wire(Dot start,Dot end,boolean visible)
+	public Wire(Symbol parent,Symbol child,int inputPin,boolean visible)
 	{
-		this(start,end);
+		this(parent,child,inputPin);
 		this.visible=visible;
 	}
 	
@@ -77,31 +77,13 @@ public class Wire implements SShape
 	{
 		return this.child;
 	}
-	/*
-	 * Sets the start dot.
-	 * @param Dot start
-	 * @return void
-	 */
-	public void setStart(Dot start)
-	{
-		this.start=start;
-	}
-	/*
-	 * Sets the end dot.
-	 * @param Dot end
-	 * @return void
-	 */
-	public void setEnd(Dot end)
-	{
-		this.end=end;
-	}
-	/*
+	/**
 	 * Returns the start dot.
 	 * @return Dot
 	 */
 	public Dot getStart()
 	{
-		return this.start;
+		return this.parent.getOutputDot();
 	}
 	/*
 	 * Returns the end dot.
@@ -109,7 +91,7 @@ public class Wire implements SShape
 	 */
 	public Dot getEnd()
 	{
-		return this.end;
+		return this.child.getInput(inputPin);
 	}
 	/*
 	 * Returns the length of the wire.
@@ -121,9 +103,9 @@ public class Wire implements SShape
 	}
 	@Override
 	public void draw(Graphics g) {
-		if(visible)
-			g.drawLine(start.getX(), start.getY(),
-				   end.getX(), end.getY());
+		//if(visible)
+			g.drawLine(getStart().getX(), getStart().getY(),
+				   getEnd().getX(), getEnd().getY());
 		
 	}
 	@Override

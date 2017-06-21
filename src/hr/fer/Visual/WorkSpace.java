@@ -41,10 +41,10 @@ public class WorkSpace extends JPanel
 			
 			@Override
 			public void mouseReleased(MouseEvent event) {
-				System.out.println(event.getLocationOnScreen());
+				//System.out.println(event.getLocationOnScreen());
 				
 				SShape shape=Geometric.getClosest(list,new Dot(event.getPoint().x,event.getPoint().y));
-				System.out.println(shape);
+				//System.out.println(shape);
 				selected=shape;
 			}
 			
@@ -100,7 +100,7 @@ public class WorkSpace extends JPanel
 				if(S instanceof Symbol)
 				{
 					Symbol S1=(Symbol)S;
-					if(S1.isSymbolOutInType())
+					//if(S1.isSymbolOutInType())
 						paintINOUT(S1);
 				}
 			} catch (IOException e) {e.printStackTrace();}
@@ -109,7 +109,7 @@ public class WorkSpace extends JPanel
 	public void paintINOUT(Symbol s)
 	{
 		JTextPane text=new JTextPane();
-		text.setText(s.getName());
+		text.setText(new Integer(s.getDepth()).toString());
 		text.setVisible(true);
 		text.setLocation(s.getCenterDot().getX(),s.getCenterDot().getY()-30);
 		text.setOpaque(true);

@@ -67,17 +67,18 @@ public class Dot implements SShape{
 	{
 		return "("+this.getX()+","+this.getY()+")";
 	}
-	/*
+	/**
 	 * Function returns random dot between Dot D1 and Dot D2.
 	 * --Function throws exception 
 	 * @param Dot D1
 	 * @param Dot D2
 	 * @return Dot
 	 */
+	
 	public static Dot getRandomDot(Dot D1,Dot D2)
 	{
-		Dot ans=new Dot( getRandom(D1.getX(),D2.getX()),
-						 getRandom(D2.getY(),D1.getY()));
+		Dot ans=new Dot( getRandom(D1.getX()-5,D2.getX()+5),
+						 getRandom(D1.getY()-5,D2.getY()+5));
 		return ans;
 	}
 	public static int getRandom(int X,int Y)

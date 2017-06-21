@@ -1,12 +1,13 @@
 package hr.fer.MainPart;
 import hr.fer.Visual.*;
-import java.awt.BorderLayout;
 
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.*;
+
 import hr.fer.GeneticAlgorithm.*;
 import hr.fer.Parsing.*;
 
@@ -17,7 +18,7 @@ public class MainFrame extends JFrame
 	JButton buttonOK=new JButton("OK");
 	JPanel skica;
 	
-	int POPULATION_SIZE=100;
+	int POPULATION_SIZE=50;
 	int NUM_OF_GENERATION=5400;
 	
 	
@@ -81,9 +82,7 @@ public class MainFrame extends JFrame
 		});
 		p.start();
 		p.join();
-		//GeneticOperations.EdgeMutation1(temp);
 		
-		System.out.println("hjjk");
 		
 		WorkSpace work=new WorkSpace(temp);
 		
@@ -92,60 +91,58 @@ public class MainFrame extends JFrame
 		//JOptionPane.showMessageDialog(null,temp.getWiresCrossing()-4*temp.getSymbols().size());
 		
 	}
+	//b*a+a*c+-b+c*(a+c*b+-d)
 	Draw BrutAllTheWay(String output)
 	{
-		Calendar c=Calendar.getInstance();
-		
-		long K=c.getTimeInMillis();
 		Draw temp=new Draw(output,500,1100);
+		
 		double mina=454546545;
-		for(int i=0;i<52000;++i)
+		
+		for(int i=0;i<8000;++i)
 		{
 			Draw D=new Draw(output,500,1100);
 			mina=Math.min(mina, D.getEdgeLengthDeviation());
-			if(i%1000==0)System.out.println(i+" "+temp.getEvaluationFunction()+" "+temp.getWiresCrossing()+" "+temp.numOfNodes+"-->"+mina);
+			if(i%1000==0)System.out.println(i+" "+temp.getEvaluationFunction()+" "+temp.getNumWiresCrossing()+" "+temp.numOfNodes+"-->"+mina);
 			if(D.getEvaluationFunction()<temp.getEvaluationFunction())
 			{
 				temp=D;
 			}
 		}
 		
-		GeneticOperations.EdgeMutation1(temp);
-		
-		Calendar c1=Calendar.getInstance();
-		
-		long K1=c1.getTimeInMillis();
-		System.out.println(((K1-K)/1000));
-		System.out.println(" "+temp.getWiresCrossing()+" "+temp.numOfNodes);
 		return temp;
 	}
 	Draw startOfGA(String output)
 	{
 		List<Draw>draws=new ArrayList<>();
-		for(int i=0;i<POPULATION_SIZE;++i)
+		for(int i=0;i<10;++i)
 		{
 			draws.add(new Draw(output,550,1100));
 		}
-		Population population=new Population(draws, NUM_OF_GENERATION);
+		
+		Population population=new Population(draws);
 		Draw ans=new Draw(output,550,1100);
+		
 		int b=1566;
-		for(int i=0;i<100;++i)
+		for(int i=0;i<3000;++i)
 		{
 			population.generateNewGeneration();
 			Draw bestDraw=population.getBestDrawFromPopulation();
 			
-			if(b>bestDraw.getWiresCrossing())
+			if(b>bestDraw.getNumWiresCrossing())
 			{
-				ans.setDots(bestDraw.getDots());
+				
 				ans.setSymbols(bestDraw.getSymbols());
 				ans.setWires(bestDraw.getWires());
 				System.out.println("hjkhjk");
-				b=bestDraw.getWiresCrossing();
+				b=new Integer(bestDraw.getNumWiresCrossing());
 			}
-			System.out.println(i+" "+b);
-			if(i%100==0)System.out.println(i+" "+bestDraw.getWiresCrossing()+" "+b);
-			if(i==56)return bestDraw;
+			
+			if(i%100==0)System.out.println(i+" "+bestDraw.getNumWiresCrossing()+" "+b);
+			//if(i==56)return bestDraw;
 		}
-		return null;
+		//GeneticOperations.EdgeMutation2(ans);
+		
+		//GeneticOperations.SingleMutate(ans, 18);
+		return ans;
 	}
 }
