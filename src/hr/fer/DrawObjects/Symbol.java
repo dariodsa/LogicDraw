@@ -23,7 +23,7 @@ public class Symbol implements SShape{
 	private int width;
 	private int depth=0;
 	
-	private String name;
+	private String name="";
 	
 	private Dot center;
 	private Dot output;
@@ -38,7 +38,7 @@ public class Symbol implements SShape{
 		inputDots=new ArrayList<>();
 		this.center=new Dot(0,0);
 		this.output=new Dot(0,0);
-		setSize(75, 75);
+		setSize(40, 40);
 	}
 	public Symbol(Symbols type)
 	{
@@ -48,7 +48,7 @@ public class Symbol implements SShape{
 		if(type==Symbols.INPUT)
 			depth=1;
 		if(type==Symbols.INPUT || type==Symbols.OUTPUT)
-			setSize(35, 25);
+			setSize(10, 10);
 		if(type==Symbols.EDGE || type==Symbols.GRID)
 			setSize(1,1);
 		
@@ -209,7 +209,7 @@ public class Symbol implements SShape{
 		
 		if(type!=Symbols.GRID && type!=Symbols.EDGE)
 		{
-		int offSet=8;
+		int offSet=2;
 		if(type==Symbols.EDGE)offSet=-5;
 		
 		d1.setXandY(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()-getHeight()/2+offSet);
@@ -296,8 +296,9 @@ public class Symbol implements SShape{
 		if(img!=null)
 		{
 			g.drawImage(img, 
-					getCenterDot().getX()-img.getWidth()/2,
-					getCenterDot().getY()-img.getHeight()/2, 
+					getCenterDot().getX()-getWidth()/2,//-img.getWidth()/2,
+					getCenterDot().getY()-getHeight()/2,//-img.getHeight()/2,
+					getWidth(),getHeight(),
 					null);
 		}
 		

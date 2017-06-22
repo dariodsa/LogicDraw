@@ -115,7 +115,7 @@ public class Wire implements SShape
 	}
 	@Override
 	public void draw(Graphics g) {
-		//if(visible)
+		if(visible)
 			g.drawLine(getStart().getX(), getStart().getY(),
 				   getEnd().getX(), getEnd().getY());
 		

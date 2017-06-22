@@ -14,7 +14,7 @@ public class GeneticOperations
 	public static void moveItLeftOrRight(Draw D)
 	{
 		
-		int br=rand.nextInt(Parser.getNumOfNodes(D.postfix));
+		int br=rand.nextInt(Parser.getNumOfNodes(D.postfix)-1);
 		int i=0;
 		for(Symbol S: D.getSymbols())
 		{
@@ -24,8 +24,13 @@ public class GeneticOperations
 				{
 					if(rand.nextInt(12)%2==0)
 					{
+						if(S.child!=null)
 						if(S.child.getDepth()-S.getDepth()>1)
+						{
 							S.setDepth(S.getDepth()+1, true);
+							
+						}
+							
 					}
 					else 
 					{
@@ -35,7 +40,11 @@ public class GeneticOperations
 						{
 							if(S.getDepth()-1==parent.getDepth())k=false;
 						}
-						if(k)S.setDepth(S.getDepth()-1, true);
+						if(k && S.getParents().size()>0)
+						{
+							S.setDepth(S.getDepth()-1, true);
+							
+						}
 					}
 					break;
 				}
@@ -43,6 +52,35 @@ public class GeneticOperations
 			}
 		}
 	}
-	
+	public static void moveItUpperOrDown(Draw D)
+	{
+		int br=rand.nextInt(Parser.getNumOfNodes(D.postfix)-1);
+		int i=0;
+		for(Symbol S: D.getSymbols())
+		{
+			if(S.isSymbolOrAndType() || S.getType()==Symbols.NOT)
+			{
+				if(br==i)
+				{
+					int broj=(int)rand.nextInt(7);
+					if(broj%2==0)
+					{
+						broj-=3;
+						D.getbitmask();
+						D.getbitmask().set(i, D.getbitmask().get(i)+broj);
+						if(D.getbitmask().get(i)>30)D.getbitmask().set(i, 30);
+					}
+					else 
+					{
+						broj=rand.nextInt(31);
+						D.getbitmask().set(i,broj);
+					}
+					
+					break;
+				}
+				++i;	
+			}
+		}
+	}
 	
 }

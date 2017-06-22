@@ -36,7 +36,7 @@ public class WorkSpace extends JPanel
 		this.skica=w;
 		list=skica.getShapes();
 		setLayout(null);
-		
+		repaint();
 		this.addMouseListener(new MouseListener() {
 			
 			@Override
@@ -101,8 +101,8 @@ public class WorkSpace extends JPanel
 				if(S instanceof Symbol)
 				{
 					Symbol S1=(Symbol)S;
-					if(S1.isSymbolOutInType())
-						paintINOUT(S1);
+					/*if(S1.isSymbolOutInType())
+						paintINOUT(S1);*/
 				}
 			} catch (IOException e) {e.printStackTrace();}
         }
@@ -110,7 +110,7 @@ public class WorkSpace extends JPanel
 	public void paintINOUT(Symbol s)
 	{
 		JTextPane text=new JTextPane();
-		text.setText(new Integer(s.getDepth()).toString());
+		text.setText(s.getName());
 		text.setVisible(true);
 		text.setLocation(s.getCenterDot().getX(),s.getCenterDot().getY()-30);
 		text.setOpaque(true);

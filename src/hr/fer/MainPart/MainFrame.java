@@ -3,9 +3,7 @@ import hr.fer.Visual.*;
 import hr.fer.Parsing.*;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Random;
 
 import javax.swing.*;
@@ -17,11 +15,11 @@ import hr.fer.Parsing.*;
 public class MainFrame extends JFrame 
 {
 	private static final long serialVersionUID = -8401309144962040446L;
-	JTextField textField=new JTextField("b*a+a*(-c+d)");
+	JTextField textField=new JTextField("b*a+a*c+-b+c*(a+c*b+-d)");//"b*a+a*(-c+d)");
 	JButton buttonOK=new JButton("OK");
 	JPanel skica;
 	
-	int POPULATION_SIZE=50;
+	int POPULATION_SIZE=60;
 	int NUM_OF_GENERATION=5400;
 	
 	
@@ -80,7 +78,7 @@ public class MainFrame extends JFrame
 		
 		Thread p=new Thread(()-> 
 		{
-			temp=BrutAllTheWay(output);
+			temp=startOfGA(output);
 			//startOfGA(output);
 		});
 		p.start();
@@ -103,7 +101,7 @@ public class MainFrame extends JFrame
 		
 		double mina=454546545;
 		
-		for(int i=0;i<16000;++i)
+		for(int i=0;i<50000;++i)
 		{
 			Draw D=new Draw(output,500,1100,generateBitMask1(len),generateBitMask2(len));
 			mina=Math.min(mina, D.getEdgeLengthDeviation());
@@ -113,13 +111,43 @@ public class MainFrame extends JFrame
 				temp=D;
 			}
 		}
-		GeneticOperations.moveItLeftOrRight(temp);
+		//GeneticOperations.moveItLeftOrRight(temp);
 		return temp;
 	}
 	Draw startOfGA(String output)
 	{
+		List<Draw>draws=new ArrayList<>();
+		int len=Parser.getNumOfNodes(output);
 		
-		return null;
+		for(int i=0;i<POPULATION_SIZE;++i)
+			draws.add(new Draw(output,550,1100,generateBitMask1(len),generateBitMask2(len)));
+		
+		Population P=new Population(draws);
+		
+		double ans=4564564615.56;
+		Draw ansDraw=null;
+		int kol=0;
+		for(int i=0;i<1820;++i)
+		{
+			P.generateNewGeneration();
+			Draw D=P.getBestDrawFromPopulation();
+			if(D.getEvaluationFunction()<ans)
+			{
+				ans=new Double(D.getEvaluationFunction());
+				ansDraw=D.duplicate();
+				System.out.println("Bolja "+ansDraw.getNumWiresCrossing());
+				kol=i;
+			}
+			
+			if(i%30==0)
+			{
+				System.out.println(i+" "+P.getBestPerform());
+				if(i-kol>120)break;
+			}
+			
+		}
+		
+		return ansDraw;
 	}
 	
 	
@@ -129,7 +157,7 @@ public class MainFrame extends JFrame
 		Random rand=new Random();
 		for(int i=0;i<len;++i)
 		{
-			list.add(rand.nextInt(15));
+			list.add(rand.nextInt(27));
 		}
 		return list;
 	}

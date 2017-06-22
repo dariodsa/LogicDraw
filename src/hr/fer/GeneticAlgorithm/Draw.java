@@ -38,9 +38,8 @@ public class Draw
 	}
 	public Draw(String postfix,int height,int width,List<Integer>bitmask,List<Integer>bitmask2)
 	{
+		this(height,width);
 		this.postfix=postfix;
-		this.height=height;
-		this.width=width;
 		
 		this.bitmask=new ArrayList<>(bitmask);
 		this.bitmask2=new ArrayList<>(bitmask2);
@@ -91,7 +90,7 @@ public class Draw
 			else
 			{
 				Symbol s=new Symbol(Symbols.INPUT,id++);
-				s.setName(postfix.charAt(i)+new Integer(i).toString());
+				s.setName(postfix.charAt(i)+"");
 				if(ulazi.containsKey((s.getName()))==false)
 				{
 					ulazi.put((s.getName()), s);
@@ -121,14 +120,19 @@ public class Draw
 	
 	public Draw duplicate()
 	{
-		Draw D=new Draw(height,width);
 		
+		Draw D=new Draw(550, 1100);
+		D.postfix=postfix;
 		D.setWires(new ArrayList<Wire>(wires));
 		D.setSymbols(new ArrayList<Symbol>(symbols));
+		D.setBitmask(getbitmask());
+		D.setBitmask2(getbitmask2());
 		
 		D.minimumNodeDistance=this.minimumNodeDistance;
 		D.minimumNodeDistanceSum=this.minimumNodeDistanceSum;
 		D.edgeCrossing=this.edgeCrossing;
+		D.totalDistance=this.totalDistance;
+		D.edgeLengthDeviation=this.edgeLengthDeviation;
 		
 		return D;
 	}
@@ -149,6 +153,8 @@ public class Draw
 				//generateWires(parent, simbol);
 				simbol.setDepth(parent.getDepth()+1);
 			}
+			if(simbol.getType()==Symbols.OUTPUT)
+				simbol.setDepth(37, true);
 		}
 		
 		symbols.sort((t1,t2)->Integer.compare(t1.getDepth(),t2.getDepth()));
@@ -160,13 +166,13 @@ public class Draw
 		addCentralDots();
 		
 		for(Symbol S: symbols)
+		
 			for(Symbol parent: S.getParents())
 				generateWires(parent, S);
-		
+			
 		for(Symbol S:temp_list)
-		{
 			symbols.add(S);
-		}
+		
 		rotatePins();
 	}
 	/*
@@ -187,7 +193,15 @@ public class Draw
 	public void setWires(List<Wire>wires)
 	{
 		this.wires=new ArrayList<Wire>(wires);
-	}		
+	}
+	public void setBitmask(List<Integer>bitmask)
+	{
+		this.bitmask=new ArrayList<Integer>(bitmask);
+	}
+	public void setBitmask2(List<Integer>bitmask2)
+	{
+		this.bitmask2=new ArrayList<Integer>(bitmask2);
+	}
 	/**
 	 * It rotates the input pins in order to minimize the intersections.
 	 */
@@ -214,13 +228,14 @@ public class Draw
 		int pos=0;
 		for(Symbol S: symbols)
 		{
-			Dot center=new Dot(bitmask2.get(pos)*60+200,
-					           bitmask.get(pos)*30+100);
+			Dot center=new Dot(bitmask2.get(pos)*35+150,
+					           bitmask.get(pos)*15+100);
 			
 			if(S.getType()==Symbols.INPUT)center.setX(100);  
 			if(S.getType()==Symbols.OUTPUT)center.setX(1050);
-			if(S.isSymbolOutInType())center.setY(Dot.getRandom(100, 400));
+			
 			if(S.getType()==Symbols.OUTPUT)center.setY(S.getParent(1).getCenterDot().getY());
+			
 			S.setPosition(center);
 			
 			if(S.isSymbolOutInType()) //The input and output dots can't be moved in the x direction, only in the y direction.
@@ -255,7 +270,7 @@ public class Draw
 		
 		Dot temp=p2.getLocation();
 		Symbol temp2=p2;
-		for(int i=0,r1=rand.nextInt(1);i<0;++i)
+		for(int i=0,r1=rand.nextInt(1);i<r1;++i)
 		{
 			//System.out.println(temp+"+"+ p.getInput(pin));
 			Dot d2=Dot.getRandomDot(temp, p.getInput(pin));
@@ -275,13 +290,24 @@ public class Draw
 		}
 		
 		Wire W1=new Wire(temp2,p,p.getNextEmptyPin());
+		
 		wires.add(W1);	
 	
+		if(p2.isSymbolOutInType())p2.setPosition(new Dot(100,W1.getEnd().getY()));
+		
 		p.AddEnteringWire(W1);
 	}
 	public List<Wire>getWires()
 	{
 		return this.wires;
+	}
+	public List<Integer> getbitmask()
+	{
+		return this.bitmask;
+	}
+	public List<Integer> getbitmask2()
+	{
+		return this.bitmask2;
 	}
 	public int getHeight()
 	{
