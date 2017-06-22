@@ -5,6 +5,11 @@ import hr.fer.Geometric.Geometric;
 import java.awt.Graphics;
 
 
+/**
+ * Represents the wire in our draw. It is consist of parent symbol and child symbol. You would also need to tell on which input pin
+ * do you want to connect your wire. You can also set its visibility. 
+ * @author Dario
+ */
 public class Wire implements SShape
 {
 	private Symbol parent;
@@ -27,21 +32,28 @@ public class Wire implements SShape
 	}
 	
 	/**
-	 * Sets the input pin of the wire.
-	 * @param inputPin
+	 * Sets the input pin of the wire. On which input pin of the child symbol will wire connect.
+	 * @param inputPin from 1 to N
+	 * @see Symbol#getInput(int)
 	 */
 	public void setInputPin(int inputPin)
 	{
 		this.inputPin=inputPin;
 	}
+	/**
+	 * Returns the inputPin attribute. 
+	 * @return inputPin
+	 * @see Symbol#getInput(int)
+	 */
 	public int getInputPin()
 	{
 		return this.inputPin;
 	}
 	/**
 	 * Sets the object's attribute visible to the given value.
-	 * @param boolean
+	 * @param visible true if it is visible, false otherwise
 	 * @return void
+	 * @see Wire#draw(Graphics)
 	 */
 	public void setVisible(boolean visible)
 	{
@@ -50,13 +62,14 @@ public class Wire implements SShape
 	/**
 	 * Returns if is the wire visible, important for drawing.
 	 * @return boolean
+	 * @see Wire#draw(Graphics)
 	 */
 	public boolean isVisible()
 	{
 		return this.visible;
 	}
 	/**
-	 * Sets the parent symbol. See also getParent.
+	 * Sets the parent symbol. From this symbol wire exits. 
 	 * @param Symbol
 	 * @return void
 	 */
@@ -73,7 +86,7 @@ public class Wire implements SShape
 		return this.parent;
 	}
 	/**
-	 * Sets the child symbol. See also getChild.
+	 * Sets the child symbol. In this symbol wire enters. 
 	 * @param Symbol
 	 * @return void
 	 */
@@ -107,7 +120,7 @@ public class Wire implements SShape
 	}
 	/**
 	 * Returns the length of the wire.
-	 * @return double
+	 * @return length Euclidean distance 
 	 */
 	public double getLength()
 	{
