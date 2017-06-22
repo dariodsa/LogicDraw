@@ -68,11 +68,12 @@ public class GeneticOperations
 						broj-=3;
 						D.getbitmask();
 						D.getbitmask().set(i, D.getbitmask().get(i)+broj);
-						if(D.getbitmask().get(i)>30)D.getbitmask().set(i, 30);
+						if(D.getbitmask().get(i)>25	)D.getbitmask().set(i, 25);
+						if(D.getbitmask().get(i)<0)D.getbitmask().set(i,0);
 					}
 					else 
 					{
-						broj=rand.nextInt(31);
+						broj=rand.nextInt(25);
 						D.getbitmask().set(i,broj);
 					}
 					

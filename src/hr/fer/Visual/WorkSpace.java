@@ -37,6 +37,7 @@ public class WorkSpace extends JPanel
 		list=skica.getShapes();
 		setLayout(null);
 		repaint();
+		
 		this.addMouseListener(new MouseListener() {
 			
 			@Override
@@ -101,8 +102,8 @@ public class WorkSpace extends JPanel
 				if(S instanceof Symbol)
 				{
 					Symbol S1=(Symbol)S;
-					/*if(S1.isSymbolOutInType())
-						paintINOUT(S1);*/
+					if(S1.isSymbolOutInType())
+						paintINOUT(S1);
 				}
 			} catch (IOException e) {e.printStackTrace();}
         }

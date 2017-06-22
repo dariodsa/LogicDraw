@@ -209,28 +209,20 @@ public class Symbol implements SShape{
 		
 		if(type!=Symbols.GRID && type!=Symbols.EDGE)
 		{
-		int offSet=2;
-		if(type==Symbols.EDGE)offSet=-5;
+			int offSet=2;
+			if(isSymbolOutInType())
+				offSet=-5;
 		
-		d1.setXandY(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()-getHeight()/2+offSet);
-		d2.setXandY(getCenterDot().getX()+getWidth()/2-offSet, getCenterDot().getY()-getHeight()/2+offSet);
-		d3.setXandY(getCenterDot().getX()+getWidth()/2-offSet, getCenterDot().getY()+getHeight()/2-offSet);
-		d4.setXandY(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()+getHeight()/2-offSet);
-		//gridDots.clear();
 		
-		gridDots[0].setPosition(new Dot(d1));
-		gridDots[1].setPosition(new Dot(d2));
-		gridDots[2].setPosition(new Dot(d3));
-		gridDots[3].setPosition(new Dot(d4));
+		gridDots[0].setPosition(new Dot(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()-getHeight()/2+offSet));
+		gridDots[1].setPosition(new Dot(getCenterDot().getX()+getWidth()/2-offSet, getCenterDot().getY()-getHeight()/2+offSet));
+		gridDots[2].setPosition(new Dot(getCenterDot().getX()+getWidth()/2-offSet, getCenterDot().getY()+getHeight()/2-offSet));
+		gridDots[3].setPosition(new Dot(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()+getHeight()/2-offSet));
 		}
 		
 		
 	}
 	
-	Dot d1=new Dot(0,0);
-	Dot d2=new Dot(0,0);
-	Dot d3=new Dot(0,0);
-	Dot d4=new Dot(0,0);
 	
 	/**
 	 * Function returns the id of a symbol. It is used in the Wire.

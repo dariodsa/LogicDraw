@@ -84,7 +84,6 @@ public class MainFrame extends JFrame
 		p.start();
 		p.join();
 		
-		
 		WorkSpace work=new WorkSpace(temp);
 		
 		add(work,BorderLayout.CENTER);
@@ -124,16 +123,16 @@ public class MainFrame extends JFrame
 		
 		Population P=new Population(draws);
 		
-		double ans=4564564615.56;
-		Draw ansDraw=null;
+		
+		Draw ansDraw=draws.get(0);
 		int kol=0;
-		for(int i=0;i<1820;++i)
+		
+		for(int i=0;i<1880;++i)
 		{
 			P.generateNewGeneration();
 			Draw D=P.getBestDrawFromPopulation();
-			if(D.getEvaluationFunction()<ans)
+			if(D.compareTo(ansDraw)<0)
 			{
-				ans=new Double(D.getEvaluationFunction());
 				ansDraw=D.duplicate();
 				System.out.println("Bolja "+ansDraw.getNumWiresCrossing());
 				kol=i;
@@ -141,9 +140,9 @@ public class MainFrame extends JFrame
 			
 			if(i%30==0)
 			{
-				System.out.println(i+" "+P.getBestPerform());
-				if(i-kol>120)break;
+				System.out.println(i);
 			}
+			//if(i-kol>320)break;
 			
 		}
 		

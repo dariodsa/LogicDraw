@@ -77,8 +77,8 @@ public class Dot implements SShape{
 	
 	public static Dot getRandomDot(Dot D1,Dot D2)
 	{
-		Dot ans=new Dot( getRandom(D1.getX(),D2.getX()),
-						 getRandom(D1.getY(),D2.getY()));
+		Dot ans=new Dot( getRandom(D1.getX()-2,D2.getX()-2),
+						 getRandom(D1.getY()-2,D2.getY()-2));
 		return ans;
 	}
 	public static int getRandom(int X,int Y)

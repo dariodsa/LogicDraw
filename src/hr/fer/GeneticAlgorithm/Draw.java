@@ -8,7 +8,7 @@ import java.awt.geom.Line2D;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class Draw 
+public class Draw implements Comparable<Draw> 
 {
 	private List<Wire>wires=new ArrayList<>();
 	private List<Symbol>symbols=new ArrayList<>();
@@ -25,11 +25,11 @@ public class Draw
 	private static Random rand=new Random();
 	public String postfix;
 	
-	private double minimumNodeDistanceSum;
-	private double minimumNodeDistance;
-	private double edgeLengthDeviation;
-	private double totalDistance;
-	private int edgeCrossing;
+	double minimumNodeDistanceSum;
+	double minimumNodeDistance;
+	double edgeLengthDeviation;
+	double totalDistance;
+	int edgeCrossing;
 	
 	public Draw(int height,int width)
 	{
@@ -116,6 +116,7 @@ public class Draw
 		TopoSort();
 		generate();
 		setEvaluationVariables();
+		
 	}
 	
 	public Draw duplicate()
@@ -165,6 +166,17 @@ public class Draw
 	{
 		addCentralDots();
 		
+		for(Symbol S:symbols)
+		{
+			for(Symbol S1:symbols)
+			{
+				if(S.isSymbolOutInType() && S1.isSymbolOutInType() && S.getName()!=S1.getName() && Math.abs(S.getLocation().getY()-S1.getLocation().getY())<15)
+				{
+					S1.setPosition(new Dot(100,S1.getLocation().getY()+40));
+				}
+			}
+		}
+		
 		for(Symbol S: symbols)
 		
 			for(Symbol parent: S.getParents())
@@ -174,17 +186,6 @@ public class Draw
 			symbols.add(S);
 		
 		rotatePins();
-	}
-	/*
-	 * Corrects the position of the Symbols.
-	 * Symbol S1 must have less or equal X value !!!!
-	 * @param Symbol S1
-	 * @param Symbol S2
-	 * @return void
-	 */
-	private void checkThePosition(Symbol S1,Symbol S2)
-	{
-		
 	}
 	public void setSymbols(List<Symbol>symbols)
 	{
@@ -257,7 +258,7 @@ public class Draw
 		
 		Wire w1=new Wire(S.gridDots[0],S.gridDots[1],1,false);
 		Wire w2=new Wire(S.gridDots[1],S.gridDots[2],1,false);
-		Wire w3=new Wire(S.gridDots[2],S.gridDots[3],1,false);
+		Wire w3=new Wire(S.gridDots[3],S.gridDots[2],1,false);
 		Wire w4=new Wire(S.gridDots[3],S.gridDots[0],1,false);
 		
 		wires.add(w1);wires.add(w2);wires.add(w3);wires.add(w4);
@@ -265,12 +266,12 @@ public class Draw
 	}
 	private void generateWires(Symbol p2, Symbol p)
 	{
-		checkThePosition(p2, p);
+		
 		int pin=p.getNextEmptyPin();
 		
 		Dot temp=p2.getLocation();
 		Symbol temp2=p2;
-		for(int i=0,r1=rand.nextInt(1);i<r1;++i)
+		for(int i=0,r1=rand.nextInt(2);i<r1;++i)
 		{
 			//System.out.println(temp+"+"+ p.getInput(pin));
 			Dot d2=Dot.getRandomDot(temp, p.getInput(pin));
@@ -360,7 +361,14 @@ public class Draw
 	 */
 	private int getWiresCrossing()
 	{
-		//return 8;
+		wires.sort(new Comparator<Wire>() {
+
+			@Override
+			public int compare(Wire o1, Wire o2) {
+				
+				return Integer.compare(o1.getStart().getX(), o2.getStart().getX());
+			}
+		});
 		int ans=0;
 		for(int i=0,len=wires.size();i<len;++i)
 		{
@@ -371,6 +379,11 @@ public class Draw
 				if(wires.get(i).getStart().compareValueTo(wires.get(j).getStart()))continue;
 				if(wires.get(i).getEnd().compareValueTo(wires.get(j).getEnd()))continue;
 				if(wires.get(j).getStart().compareValueTo(wires.get(i).getEnd()))continue;
+				
+				if(Math.max(wires.get(i).getEnd().getX(),wires.get(i).getStart().getX())<
+						Math.min(wires.get(j).getStart().getX(),wires.get(j).getEnd().getX()))
+					break;
+				
 				if(DoWiresCross(wires.get(i),wires.get(j)))
 				{
 					++ans;
@@ -378,7 +391,13 @@ public class Draw
 			}
 		}
 		
-		return ans;
+		int k=0;
+		for(int i=0;i<postfix.length();++i)
+		{
+			if(postfix.charAt(i)>='a' && postfix.charAt(i)<='z')++k;
+		}
+		
+		return ans-k-1;
 	}
 	public double getEdgeLengthDeviation()
 	{
@@ -418,9 +437,9 @@ public class Draw
 		for(int i=0,len=symbols.size();i<len;++i)
 		{
 			double mina=4545645;
-			for(int j=0;j<len;++j)
+			for(int j=i+1;j<len;++j)
 			{
-				if(i==j)continue;
+				//if(i==j)continue;
 				mina=Math.min(mina,Geometric.distance(symbols.get(i).getCenterDot(), symbols.get(j).getCenterDot()));
 			}
 			ans+=mina;
@@ -456,6 +475,19 @@ public class Draw
 				+totalDistance
 				+edgeLengthDeviation
 				-15*minimumNodeDistanceSum;
+	}
+	@Override
+	public int compareTo(Draw o) {
+		if(edgeCrossing==o.edgeCrossing)
+		{
+			//totalDistance
+			//minimumNodeDistanceSum
+			double x1=totalDistance/o.totalDistance;
+			double x2=minimumNodeDistanceSum/o.minimumNodeDistanceSum;
+			return Double.compare((x1+x2)/2.0, 1.0);
+		}
+		return Integer.compare(edgeCrossing, o.edgeCrossing);
+		
 	}
 	
 }

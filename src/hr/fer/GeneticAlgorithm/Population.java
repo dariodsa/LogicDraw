@@ -49,23 +49,23 @@ public class Population
 	 */
 	public void generateNewGeneration()
 	{
-		int size=draws.size();
+		int size=getPopulationSize();
 		evaluate();
 		List<Draw>kids=new ArrayList<>();
 		
-		int num=0;
-		int kol=size/4;
 		
-		for(int i=0;i<kol;++i,++num)  // The best one in the generation
+		int kol=size/5;
+		
+		for(int i=0;i<kol;++i)  // The best one in the generation
 			kids.add(draws.get(i).duplicate());
 		
-		for(int i=0;i<size/3;++i,++num)
+		for(int i=0;i<size/3;++i)
 		{
 			Draw D=selectOneDraw().duplicate();
 			muttation(D);
 			kids.add(D);
 		}
-		for(int i=num-1;i<size;++i)
+		for(int i=kids.size();i<size;++i)
 		{
 			Draw D1=selectOneDraw().duplicate();
 			Draw D2=selectOneDraw().duplicate();
@@ -127,6 +127,14 @@ public class Population
 		
 	}
 	/**
+	 * Returns the population size.
+	 * @return size population size
+	 */
+	public int getPopulationSize()
+	{
+		return this.draws.size();
+	}
+	/**
 	 * Sorts the draws in the asc order using the evaluation function.
 	 * @return void
 	 */
@@ -135,14 +143,16 @@ public class Population
 		draws.sort((new Comparator<Draw>() {
 
 			@Override
-			public int compare(Draw o1, Draw o2) {
-				return Double.compare(o1.getEvaluationFunction(), o2.getEvaluationFunction());
-				/*if(o1.getNumWiresCrossing()==o2.getNumWiresCrossing())
+			public int compare(Draw d, Draw o) {
+				if(d.edgeCrossing==o.edgeCrossing)
 				{
-					return Double.compare(o1.getTotalDistance()+o1.getMinimumNodeDistance(),
-										  o2.getTotalDistance()+o2.getMinimumNodeDistance());
+					//totalDistance
+					//minimumNodeDistanceSum
+					double x1=d.totalDistance/o.totalDistance;
+					double x2=d.minimumNodeDistanceSum/o.minimumNodeDistanceSum;
+					return Double.compare((x1+x2)/2.0, 1.0);
 				}
-				else return Integer.compare(o1.getNumWiresCrossing(), o2.getNumWiresCrossing());*/
+				return Integer.compare(d.edgeCrossing, o.edgeCrossing);
 			}
 		}));
 		
