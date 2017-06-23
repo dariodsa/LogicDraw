@@ -9,6 +9,12 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
+/**
+ * 
+ * @see SShape
+ * @author Dario
+ *
+ */
 public class Symbol implements SShape{
 	
 	private Symbols type;
@@ -18,7 +24,6 @@ public class Symbol implements SShape{
 	
 	private List<Wire>enteringWires=new ArrayList<>();
 	
-	private int id;
 	private int height;
 	private int width;
 	private int depth=0;
@@ -60,11 +65,7 @@ public class Symbol implements SShape{
 		this(type);
 		setPosition(position);
 	}
-	public Symbol(Symbols type,int id)
-	{
-		this(type);
-		this.id=id;
-	}
+	
 	/**
 	 * Sets the width and the height of the element.
 	 * @param int height
@@ -76,14 +77,19 @@ public class Symbol implements SShape{
 		this.height=height;
 		this.width=width;
 	}
-	public void swapInputPins()
-	{
-		
-	}
+	/**
+	 * Returns the next empty input pin, so that new wire can connect to it. 
+	 * @return int Returns the number indificator of the empty input pin. The returned value will be in the in the range from 1 to N.
+	 */
 	public int getNextEmptyPin()
 	{
 		return enteringWires.size()+1;
 	}
+	/**
+	 * Returns the type of the symbol. 
+	 * @return the defined types in the enum Symbols.
+	 * @see Symbols
+	 */
 	public Symbols getType()
 	{
 		return this.type;
@@ -153,6 +159,11 @@ public class Symbol implements SShape{
 	{
 		return new ArrayList<>(enteringWires);
 	}
+	/**
+	 * Gets the entering wire in the symbol. 
+	 * @param pos from 0 to N
+	 * @return wire that enters the pos-th input pin.
+	 */
 	public Wire getEnteringWire(int pos)
 	{
 		return enteringWires.get(pos);
@@ -173,12 +184,20 @@ public class Symbol implements SShape{
 	{
 		this.depth=Math.max(this.depth, depth);
 	}
+	/**
+	 * Sets the depth despite the previous value.
+	 * @param depth
+	 * @param change
+	 */
 	public void setDepth(int depth,boolean change)
 	{
 		this.depth=depth;
 	}
-	
-	
+	/**
+	 * Sets the new position of the center dot. By that everything is changed. The output dot will be set to a new one, input dots will be updated, as
+	 * well as , the grid dots.
+	 * @param center
+	 */
 	public void setPosition(Dot center)
 	{
 		this.center.setXandY(center.getX(),center.getY());
@@ -223,19 +242,10 @@ public class Symbol implements SShape{
 		
 	}
 	
-	
-	/**
-	 * Function returns the id of a symbol. It is used in the Wire.
-	 * @see_also Wire 
-	 * @return int
-	 */
-	public int getId()
-	{
-		return this.id;
-	}
 	/**
 	 * Gets the name of the symbol. It will be display just near the symbol in the main draw. Right now this
 	 * is used only on input and output pins. 
+	 * @return name string 
 	 */
 	public String getName()
 	{
@@ -248,19 +258,37 @@ public class Symbol implements SShape{
 	{
 		this.name=name;
 	}
-	
+	/**
+	 * Returns true if the symbol's type is OR or AND, false otherwise.
+	 * @return boolean
+	 * @see Symbols
+	 */
 	public boolean isSymbolOrAndType()
 	{
 		return getType()==Symbols.OR || getType()==Symbols.AND;
 	}
+	/**
+	 * Returns true if the symbol's type is INPUT or OUTPUT, false otherwise.
+	 * @return boolean
+	 * @see Symbols
+	 */
 	public boolean isSymbolOutInType()
 	{
 		return getType()==Symbols.INPUT || getType()==Symbols.OUTPUT;
 	}
+	/**
+	 * Returns the center dot of the symbol.
+	 * @return
+	 */
 	public Dot getCenterDot()
 	{
 		return this.center;
 	}
+	/**
+	 * Returns the output dot of the symbol. The wire that exiting from the symbol, firstly is connect on the output dot.
+	 * Output dot is ( center.x + width/2, center.y).
+	 * @return
+	 */
 	public Dot getOutputDot()
 	{
 		return output;
