@@ -57,7 +57,7 @@ public class Draw implements Comparable<Draw>
 					S.pop();
 					
 					//Adding a new Symbol to the list, 1 operands
-					Symbol P2=new Symbol(Symbols.NOT,id++);
+					Symbol P2=new Symbol(Symbols.NOT);
 					P2.addParent(P);
 					P.child=P2;
 					
@@ -74,9 +74,9 @@ public class Draw implements Comparable<Draw>
 					
 					//Adding a new Symbol to the list, 2 operands
 					if(postfix.charAt(i)=='+')
-						P2=new Symbol(Symbols.OR,id++);
+						P2=new Symbol(Symbols.OR);
 					else
-						P2=new Symbol(Symbols.AND,id++);
+						P2=new Symbol(Symbols.AND);
 					
 					P2.addParent(P);
 					P2.addParent(P1);
@@ -89,7 +89,7 @@ public class Draw implements Comparable<Draw>
 			}
 			else
 			{
-				Symbol s=new Symbol(Symbols.INPUT,id++);
+				Symbol s=new Symbol(Symbols.INPUT);
 				s.setName(postfix.charAt(i)+"");
 				if(ulazi.containsKey((s.getName()))==false)
 				{
@@ -107,7 +107,7 @@ public class Draw implements Comparable<Draw>
 		}
 		Symbol P=S.peek();
 		S.pop();
-		Symbol out=new Symbol(Symbols.OUTPUT,id++);
+		Symbol out=new Symbol(Symbols.OUTPUT);
 		out.setName("Out");
 		out.addParent(P);
 		symbols.add(out);
@@ -276,7 +276,7 @@ public class Draw implements Comparable<Draw>
 			//System.out.println(temp+"+"+ p.getInput(pin));
 			Dot d2=Dot.getRandomDot(temp, p.getInput(pin));
 			//System.out.println(d2);
-			Symbol S1=new Symbol(Symbols.EDGE,p2.getId());
+			Symbol S1=new Symbol(Symbols.EDGE);
 			S1.addParent(temp2);
 			S1.setPosition(d2);
 			
@@ -450,6 +450,10 @@ public class Draw implements Comparable<Draw>
 	{
 		return this.minimumNodeDistanceSum;
 	}
+	/**
+	 * Returns the sum of the wires euclid distance.
+	 * @return sum of the total distance in the draw
+	 */
 	public double getTotalDistance()
 	{
 		double ans=0;

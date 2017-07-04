@@ -133,14 +133,4 @@ public class Wire implements SShape
 				   getEnd().getX(), getEnd().getY());
 		
 	}
-	@Override
-	public void moveIt(Dot newPosition) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public Dot getLocation() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

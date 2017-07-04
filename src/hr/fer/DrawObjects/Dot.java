@@ -3,7 +3,7 @@ package hr.fer.DrawObjects;
 import java.awt.Graphics;
 import java.util.Random;
 
-public class Dot implements SShape{
+public class Dot {
 	private int x;
 	private int y;
 	
@@ -90,19 +90,6 @@ public class Dot implements SShape{
 		
 		return (rand.nextInt(Y-X))+X;
 	}
-	@Override
-	public void draw(Graphics g) {
-		// TODO Auto-generated method stub
-		return;
-	}
-	@Override
-	public void moveIt(Dot newPosition) {
-		setXandY(x, y);
-		
-	}
-	@Override
-	public Dot getLocation() {
-		return this;
-	}
+	
 	
 }

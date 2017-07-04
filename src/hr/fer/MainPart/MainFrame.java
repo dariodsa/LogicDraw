@@ -92,27 +92,6 @@ public class MainFrame extends JFrame
 		
 	}
 	//b*a+a*c+-b+c*(a+c*b+-d)
-	Draw BrutAllTheWay(String output)
-	{
-		int len=Parser.getNumOfNodes(output);
-		
-		Draw temp=new Draw(output,500,1100,generateBitMask1(len),generateBitMask2(len));
-		
-		double mina=454546545;
-		
-		for(int i=0;i<50000;++i)
-		{
-			Draw D=new Draw(output,500,1100,generateBitMask1(len),generateBitMask2(len));
-			mina=Math.min(mina, D.getEdgeLengthDeviation());
-			if(i%1000==0)System.out.println(i+" "+temp.getEvaluationFunction()+" "+temp.getNumWiresCrossing()+"-->"+mina);
-			if(D.getEvaluationFunction()<temp.getEvaluationFunction())
-			{
-				temp=D;
-			}
-		}
-		//GeneticOperations.moveItLeftOrRight(temp);
-		return temp;
-	}
 	Draw startOfGA(String output)
 	{
 		List<Draw>draws=new ArrayList<>();
@@ -127,7 +106,7 @@ public class MainFrame extends JFrame
 		Draw ansDraw=draws.get(0);
 		int kol=0;
 		
-		for(int i=0;i<1880;++i)
+		for(int i=0;i<1980;++i)
 		{
 			P.generateNewGeneration();
 			Draw D=P.getBestDrawFromPopulation();
