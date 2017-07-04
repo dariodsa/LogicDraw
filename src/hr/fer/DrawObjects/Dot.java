@@ -1,6 +1,5 @@
 package hr.fer.DrawObjects;
 
-import java.awt.Graphics;
 import java.util.Random;
 
 public class Dot {
@@ -13,13 +12,11 @@ public class Dot {
 	
 	public Dot(int x,int y)
 	{
-		this.x=x;
-		this.y=y;
+		setXandY(x, y);
 	}
 	public Dot(Dot D)
 	{
-		this.x=D.getX();
-		this.y=D.getY();
+		this(D.getX(),D.getY());
 	}
 	public int getX()
 	{
@@ -58,6 +55,11 @@ public class Dot {
 		setX(x);
 		setY(y);
 	}
+	public Dot getLocation()
+	{
+		return this;
+	}
+	
 	public boolean compareValueTo(Dot x)
 	{
 		return getX()==x.getX() && getY()==x.getY();
@@ -85,8 +87,6 @@ public class Dot {
 	{
 		if(X>Y){int z=X;X=Y;Y=z;}
 		if(X==Y)return X;
-		if(Y-X<0)
-			return rand.nextInt(50)+X;   /// ????
 		
 		return (rand.nextInt(Y-X))+X;
 	}

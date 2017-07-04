@@ -323,11 +323,11 @@ public class Symbol implements SShape{
 		}
 		
 	}
-	@Override
+	
 	public void moveIt(Dot newPosition) {
 		setPosition(new Dot(newPosition));
 	}
-	@Override
+	
 	public Dot getLocation() {
 		return center;
 	}

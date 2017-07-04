@@ -23,6 +23,7 @@ public class Geometric {
 		{
 			if(s instanceof Symbol)
 			{
+				s=(Symbol)s;
 				if(dul>distance(s.getLocation(),clicked.getLocation()))
 				{
 					dul=distance(s.getLocation(),clicked.getLocation());

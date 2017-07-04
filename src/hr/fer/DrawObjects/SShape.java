@@ -12,6 +12,15 @@ public interface SShape
 	 * @throws IOException
 	 */
 	public void draw(Graphics g) throws IOException;
-	
+	/**
+	 * Moves it to the new position. 
+	 * @param newPosition that dot is the new center dot of the shape.
+	 */
+	public void moveIt(Dot newPosition);
+	/**
+	 * Returns the center of the shape.
+	 * @return center
+	 */
+	public Dot getLocation();
 	
 }
