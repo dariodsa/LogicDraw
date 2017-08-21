@@ -1,4 +1,5 @@
 package hr.fer.League;
+import hr.fer.League.*;
 import hr.fer.GeneticAlgorithm.*;
 
 import java.util.*;
@@ -11,9 +12,11 @@ public class LeagueTable {
 	
 	public LeagueTable(List<Draw>lista)
 	{
+		players.clear();
 		for(Draw D: lista)
 		{
-			players.add((Player)D);
+			Draw D1=D.duplicate();
+			players.add((Player)D1);
 		}
 		
 		scheduledGames=LeagueTable.construct(players);
@@ -32,6 +35,7 @@ public class LeagueTable {
 				return o1.compareTo(o2);
 			}
 		});
+		
 	}
 	public List<Player> getLeagueOrder()
 	{
@@ -40,7 +44,7 @@ public class LeagueTable {
 	private static List<Game> construct(List<Player>players)
 	{
 		List<Game>games=new ArrayList<>();
-		
+		//System.out.println(players.size()+" ");
 		for(int i=0;i<players.size();++i)
 		{
 			for(int j=0;j<players.size();++j)

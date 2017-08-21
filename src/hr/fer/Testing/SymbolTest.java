@@ -4,11 +4,11 @@ import hr.fer.DrawObjects.Dot;
 import hr.fer.DrawObjects.Symbol;
 import hr.fer.DrawObjects.Symbols;
 
-import org.junit.*;
+//import org.junit.*;
 
 public class SymbolTest 
 {
-	@Test
+	/*@Test
 	public void InputDot()
 	{
 		Symbol S=new Symbol(Symbols.OR);
@@ -22,5 +22,5 @@ public class SymbolTest
 			Assert.fail();
 		if(i1.getX()!=S.getCenterDot().getX()-S.getWidth()/2)Assert.fail();
 		if(i1.getY()!=S.getCenterDot().getY()-S.getHeight()/2+1.0/3.0*(S.getHeight()))Assert.fail();
-	}
+	}*/
 }

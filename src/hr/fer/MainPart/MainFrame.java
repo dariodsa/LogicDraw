@@ -116,42 +116,18 @@ public class MainFrame extends JFrame
 		Draw ansDraw=draws.get(0);
 		int kol=0;
 		
-		for(int i=0;i<260;++i)
+		for(int i=0;i<2000;++i)
 		{
 			P.generateNewGeneration();
 			Draw D=P.getBestDrawFromPopulation();
-			if(D.compareToa(ansDraw)<0)
+			if(i%100==0)
 			{
-				ansDraw=D.duplicate();
-				System.out.println("Bolja "+ansDraw.getNumWiresCrossing());
-				kol=i;
-			}
-			
-			if(i%30==0)
-			{
-				System.out.println(i+ " "+ansDraw.getYLength()+" "+ansDraw.forceDirected());
-			}
-			if(i%300==0)
-			{
-				final Draw kola=ansDraw.duplicate();
-				final int broj=i;
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						WorkSpace work=new WorkSpace(kola);
-						BufferedImage image = new BufferedImage(1400, 700, BufferedImage.TYPE_3BYTE_BGR); 
-						Graphics g = image.getGraphics();
-						work.paint(g);
-						try{ImageIO.write(image,"png",new File("test"+new Integer(broj).toString()+".png"));}catch (Exception e) {}
-						
-					}
-				});
-				
+				System.out.println(i+". -> "+D.getNumWiresCrossing());
 			}
 			//if(i-kol>320)break;
 			
 		}
+		ansDraw=P.getBestDrawFromPopulation();
 		ansDraw.podesavanje();
 		return ansDraw;
 	}

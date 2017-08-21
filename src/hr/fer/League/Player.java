@@ -54,11 +54,11 @@ public class Player extends Draw implements Comparable<Player>{
 	public int compareTo(Player o) {
 		
 		//Score 
-		int compare1=Integer.compare(score, o.getScore());
+		int compare1=Integer.compare(o.getScore(), score);
 		if(compare1!=0)return compare1;
 		
 		//Away score
-		int compare2=Integer.compare(awayScore, o.getAwayScore());
+		int compare2=Integer.compare( o.getAwayScore(),awayScore);
 		if(compare2!=0)return compare2;
 		
 		return Integer.compare(homeScore,o.getHomeScore());

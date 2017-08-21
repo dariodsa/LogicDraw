@@ -165,13 +165,17 @@ public class Population
 		
 		LeagueTable liga=new LeagueTable(draws);
 		liga.playTwoRounds();
-		draws.clear();
+		//draws.clear();
 		List<Player> leagueOrder=liga.getLeagueOrder();
+		int pos=0;
+		draws.clear();
+		
 		for(Player P: leagueOrder)
 		{
-			draws.add((Draw)P);
+			draws.add(P);
 		}
 		
+		//System.out.println(draws.get(0).getNumWiresCrossing() +" "+leagueOrder.get(0).getScore()+ " "+leagueOrder.get(1).getScore() );
 	}
 	
 	/**
