@@ -8,7 +8,7 @@ public class Dot {
 	
 	private boolean canYouMoveIt=true;
 	
-	private static Random rand=new Random();
+	private static Random rand=new Random(System.currentTimeMillis());
 	
 	public Dot(int x,int y)
 	{
@@ -79,8 +79,8 @@ public class Dot {
 	
 	public static Dot getRandomDot(Dot D1,Dot D2)
 	{
-		Dot ans=new Dot( getRandom(D1.getX()-2,D2.getX()-2),
-						 getRandom(D1.getY()-2,D2.getY()-2));
+		Dot ans=new Dot( getRandom(D1.getX(),D2.getX()),
+						 getRandom(D1.getY(),D2.getY()));
 		return ans;
 	}
 	public static int getRandom(int X,int Y)

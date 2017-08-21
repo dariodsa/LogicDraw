@@ -168,6 +168,7 @@ public class WorkSpace extends JPanel
 			}
 			skica.rotatePins();
 			repaint();
+			System.out.println("Sile: "+skica.forceDirected());
 		}
 	}
 }

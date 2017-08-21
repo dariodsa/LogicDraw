@@ -1,4 +1,5 @@
 package hr.fer.GeneticAlgorithm;
+import hr.fer.League.*;
 import java.util.*;
 
 import hr.fer.DrawObjects.*;
@@ -15,7 +16,8 @@ public class Population
 	public Population(List<Draw> draws)
 	{
 		setNewGeneration(draws);
-		
+		evaluate();
+		rand.setSeed(System.currentTimeMillis());
 	}
 	/**
 	 * Return the best evaluation function in the given population.
@@ -24,10 +26,8 @@ public class Population
 	public double getBestPerform()
 	{
 		double ans=115651561651.56;
-		for(Draw D: draws)
-			ans=Math.min(ans,D.getEvaluationFunction());
 		
-		return ans;
+		return draws.get(0).getNumWiresCrossing();
 	}
 	/**
 	 * Sets the new generation, but first we kill the previous. 
@@ -50,7 +50,7 @@ public class Population
 	public void generateNewGeneration()
 	{
 		int size=getPopulationSize();
-		evaluate();
+		//evaluate();
 		List<Draw>kids=new ArrayList<>();
 		
 		
@@ -59,11 +59,13 @@ public class Population
 		for(int i=0;i<kol;++i)  // The best one in the generation
 			kids.add(draws.get(i).duplicate());
 		
-		for(int i=0;i<size/3;++i)
+		for(int i=0;i<size/7;++i)
 		{
 			Draw D=selectOneDraw().duplicate();
 			muttation(D);
-			kids.add(D);
+			Draw D2=new Player(D.postfix,D.getHeight(),D.getWidth(),D.getbitmask1(),D.getbitmask2());
+			//System.out.println("D2 "+D2.forceDirected());
+			kids.add(D2);
 		}
 		for(int i=kids.size();i<size;++i)
 		{
@@ -75,6 +77,7 @@ public class Population
 		}
 		
 		setNewGeneration(kids);
+		evaluate();
 	}
 	/**
 	 * Kills the entire generation.
@@ -96,18 +99,19 @@ public class Population
 			return null;
 		
 		Draw ans=draws.get(0);
-		double brAns=ans.getEvaluationFunction();
-		
+		return ans;
+		//double brAns=ans.forceDirected();//.getEvaluationFunction();
+		/*
 		for(Draw D : draws)
 		{
-			double temp=D.getEvaluationFunction();
-			if(temp<brAns)
+			double temp=D.forceDirected();//.getEvaluationFunction();
+			if(D.compareTo(ans)<0)
 			{
 				ans=D;
-				brAns=temp;
+				//brAns=temp;
 			}
 		}
-		return ans;
+		return ans;*/
 	}
 	/**
 	 * Mutate the single draw.
@@ -117,13 +121,14 @@ public class Population
 	public void muttation(Draw D)
 	{
 		Random rand=new Random();
+		rand.setSeed(System.currentTimeMillis());
 		int pos=rand.nextInt(35);
 		
 		//if(pos<28)
 			GeneticOperations.moveItLeftOrRight(D);
 		//if(rand.nextInt(35)<28)
 			GeneticOperations.moveItUpperOrDown(D);
-		D=new Draw(D.postfix,D.getHeight(),D.getWidth(),D.getbitmask(),D.getbitmask2());
+		
 		
 	}
 	/**
@@ -140,7 +145,7 @@ public class Population
 	 */
 	public void evaluate()
 	{
-		draws.sort((new Comparator<Draw>() {
+		/*draws.sort((new Comparator<Draw>() {
 
 			@Override
 			public int compare(Draw d, Draw o) {
@@ -150,16 +155,27 @@ public class Population
 					//minimumNodeDistanceSum
 					double x1=d.totalDistance/o.totalDistance;
 					double x2=d.minimumNodeDistanceSum/o.minimumNodeDistanceSum;
-					return Double.compare((x1+x2)/2.0, 1.0);
+					//return Double.compare((x1+x2)/2.0, 1.0);
+					return Double.compare(d.forceDirected(), o.forceDirected());
+					//return Double.compare(o.getYLength(), d.getYLength());
 				}
 				return Integer.compare(d.edgeCrossing, o.edgeCrossing);
 			}
-		}));
+		}));*/
+		
+		LeagueTable liga=new LeagueTable(draws);
+		liga.playTwoRounds();
+		draws.clear();
+		List<Player> leagueOrder=liga.getLeagueOrder();
+		for(Player P: leagueOrder)
+		{
+			draws.add((Draw)P);
+		}
 		
 	}
 	
 	/**
-	 * Adds new draw to the population.
+	 * Adds new Player to the population.
 	 * @param Draw 
 	 * @return void
 	 */
@@ -168,27 +184,30 @@ public class Population
 		draws.add(d);
 	}
 	/**
-	 * Generate new Draw based on the parents.
+	 * Generate new Player based on the parents.
 	 * @param Draw parent1
 	 * @param Draw parent2
 	 * @return Draw 
 	 */
 	public Draw generateNewDraw(Draw parent1,Draw parent2)
 	{
-		List<Integer>bitmaskParent1=parent1.getbitmask();
-		List<Integer>bitmaskParent2=parent2.getbitmask();
+		List<Integer>bitmaskParent1=parent1.getbitmask1();
+		List<Integer>bitmaskParent2=parent2.getbitmask1();
 		
 		int br=rand.nextInt(bitmaskParent1.size());
+		
+		int br2=br+rand.nextInt((bitmaskParent1.size())-br);
 		
 		List<Integer>bitmaskChild=new ArrayList<>();
 		for(int i=0;i<br;++i)
 			bitmaskChild.add(bitmaskParent1.get(i));
-		for(int i=br;i<bitmaskParent2.size();++i)
+		for(int i=br;i<br2;++i)
 			bitmaskChild.add(bitmaskParent2.get(i));
-		
+		for(int i=br2;i<bitmaskParent1.size();++i)
+			bitmaskChild.add(bitmaskParent1.get(i));
 		if(br%2==0)
-			return new Draw(parent1.postfix,parent1.getHeight(),parent1.getWidth(),bitmaskChild,parent1.getbitmask2());
-		return new Draw(parent1.postfix,parent1.getHeight(),parent1.getWidth(),bitmaskChild,parent2.getbitmask2());
+			return new Player(parent1.postfix,parent1.getHeight(),parent1.getWidth(),bitmaskChild,parent1.getbitmask2());
+		return new Player(parent1.postfix,parent1.getHeight(),parent1.getWidth(),bitmaskChild,parent2.getbitmask2());
 	}
 	/**
 	 * Returns some draw from the whole population. 

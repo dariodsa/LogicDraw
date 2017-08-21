@@ -1,11 +1,16 @@
 package hr.fer.MainPart;
+import hr.fer.League.*;
 import hr.fer.Visual.*;
 import hr.fer.Parsing.*;
-import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.*;
-import java.util.Random;
 
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import hr.fer.DrawObjects.Symbol;
@@ -19,7 +24,7 @@ public class MainFrame extends JFrame
 	JButton buttonOK=new JButton("OK");
 	JPanel skica;
 	
-	int POPULATION_SIZE=60;
+	int POPULATION_SIZE=70;
 	int NUM_OF_GENERATION=5400;
 	
 	
@@ -78,7 +83,12 @@ public class MainFrame extends JFrame
 		
 		Thread p=new Thread(()-> 
 		{
-			temp=startOfGA(output);
+			try {
+				temp=startOfGA(output);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			//startOfGA(output);
 		});
 		p.start();
@@ -92,13 +102,13 @@ public class MainFrame extends JFrame
 		
 	}
 	//b*a+a*c+-b+c*(a+c*b+-d)
-	Draw startOfGA(String output)
+	Draw startOfGA(String output) throws InterruptedException
 	{
 		List<Draw>draws=new ArrayList<>();
 		int len=Parser.getNumOfNodes(output);
 		
-		for(int i=0;i<POPULATION_SIZE;++i)
-			draws.add(new Draw(output,550,1100,generateBitMask1(len),generateBitMask2(len)));
+		for(int i=0;i<65;++i)
+			draws.add(new Player(output,550,1100,generateBitMask1(len),generateBitMask2(len)));
 		
 		Population P=new Population(draws);
 		
@@ -106,11 +116,11 @@ public class MainFrame extends JFrame
 		Draw ansDraw=draws.get(0);
 		int kol=0;
 		
-		for(int i=0;i<1980;++i)
+		for(int i=0;i<260;++i)
 		{
 			P.generateNewGeneration();
 			Draw D=P.getBestDrawFromPopulation();
-			if(D.compareTo(ansDraw)<0)
+			if(D.compareToa(ansDraw)<0)
 			{
 				ansDraw=D.duplicate();
 				System.out.println("Bolja "+ansDraw.getNumWiresCrossing());
@@ -119,12 +129,30 @@ public class MainFrame extends JFrame
 			
 			if(i%30==0)
 			{
-				System.out.println(i);
+				System.out.println(i+ " "+ansDraw.getYLength()+" "+ansDraw.forceDirected());
+			}
+			if(i%300==0)
+			{
+				final Draw kola=ansDraw.duplicate();
+				final int broj=i;
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						WorkSpace work=new WorkSpace(kola);
+						BufferedImage image = new BufferedImage(1400, 700, BufferedImage.TYPE_3BYTE_BGR); 
+						Graphics g = image.getGraphics();
+						work.paint(g);
+						try{ImageIO.write(image,"png",new File("test"+new Integer(broj).toString()+".png"));}catch (Exception e) {}
+						
+					}
+				});
+				
 			}
 			//if(i-kol>320)break;
 			
 		}
-		
+		ansDraw.podesavanje();
 		return ansDraw;
 	}
 	
@@ -133,6 +161,7 @@ public class MainFrame extends JFrame
 	{
 		List<Integer>list=new ArrayList<>();
 		Random rand=new Random();
+		rand.setSeed(System.currentTimeMillis());
 		for(int i=0;i<len;++i)
 		{
 			list.add(rand.nextInt(27));
@@ -143,6 +172,7 @@ public class MainFrame extends JFrame
 	{
 		List<Integer>list=new ArrayList<>();
 		Random rand=new Random();
+		rand.setSeed(System.nanoTime());
 		int kol=0;
 		for(int i=0;i<len;++i)
 		{

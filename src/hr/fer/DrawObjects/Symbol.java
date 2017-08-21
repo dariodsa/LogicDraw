@@ -1,5 +1,5 @@
 package hr.fer.DrawObjects;
-
+import hr.fer.Geometric.*;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -35,6 +35,8 @@ public class Symbol implements SShape{
 	public List<Dot>inputDots=new ArrayList<>();
 	
 	public Symbol[]gridDots=new Symbol[5];
+	
+	public VVector disp=new VVector(0,0);
 	
 	public Symbol()
 	{
@@ -230,7 +232,7 @@ public class Symbol implements SShape{
 		{
 			int offSet=2;
 			if(isSymbolOutInType())
-				offSet=-5;
+				offSet=-1;
 		
 		
 		gridDots[0].setPosition(new Dot(getCenterDot().getX()-getWidth()/2+offSet, getCenterDot().getY()-getHeight()/2+offSet));
