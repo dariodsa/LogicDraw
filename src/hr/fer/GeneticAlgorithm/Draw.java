@@ -272,7 +272,7 @@ public class Draw
 					           bitmask1.get(pos)*15+100);
 			
 			if(S.getType()==Symbols.INPUT)center.setX(100);  
-			if(S.getType()==Symbols.OUTPUT)center.setX(1310);
+			if(S.getType()==Symbols.OUTPUT)center.setX(1150);
 			
 			if(S.getType()==Symbols.OUTPUT)center.setY(S.getParent(1).getCenterDot().getY());
 			
